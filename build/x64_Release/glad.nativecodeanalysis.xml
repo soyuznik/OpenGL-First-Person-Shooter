@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DEFECTS>
+  <DEFECT>
+    <SFA>
+      <FILEPATH>C:\Users\user\Documents\GitHub\OPENGL_TERRAIN\OPENGL_TERRAIN_EDITOR\spotify-GL\includes\</FILEPATH>
+      <FILENAME>glad.c</FILENAME>
+      <LINE>161</LINE>
+      <COLUMN>33</COLUMN>
+    </SFA>
+    <DEFECTCODE>6308</DEFECTCODE>
+    <DESCRIPTION>'realloc' might return null pointer: assigning null pointer to 'exts_i', which is passed as an argument to 'realloc', will cause the original memory block to be leaked.</DESCRIPTION>
+    <FUNCTION>get_exts</FUNCTION>
+    <DECORATED>get_exts</DECORATED>
+    <FUNCLINE>148</FUNCLINE>
+    <PATH></PATH>
+  </DEFECT>
+</DEFECTS>

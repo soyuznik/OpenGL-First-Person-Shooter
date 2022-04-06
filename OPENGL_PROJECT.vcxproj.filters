@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="MAIN.cpp" />
+    <ClCompile Include="includes\glad.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\lowlevel\UTILITY.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{2587c5c9-1d76-4622-a25a-ac808268355d}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\obj_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\obj_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
