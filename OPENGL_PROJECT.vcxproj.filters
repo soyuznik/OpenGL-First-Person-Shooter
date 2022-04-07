@@ -6,9 +6,6 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\lowlevel\UTILITY.h" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Shaders">
       <UniqueIdentifier>{2587c5c9-1d76-4622-a25a-ac808268355d}</UniqueIdentifier>
     </Filter>
@@ -20,5 +17,8 @@
     <None Include="resources\shaders\obj_vertex.glsl">
       <Filter>Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="UTILITY.h" />
   </ItemGroup>
 </Project>
