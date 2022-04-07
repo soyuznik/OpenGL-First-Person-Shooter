@@ -5,7 +5,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -20,13 +19,11 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include <stdio.h>
+#include <string>
 #include <filesystem>
-using namespace std;
 
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma = false);
-std::string
-replaceAll(std::string const& original, std::string const& from, std::string const& to)
+using namespace std;
+std::string replaceAll(std::string const& original, std::string const& from, std::string const& to)
 {
     std::string results;
     std::string::const_iterator end = original.end();
@@ -41,6 +38,8 @@ replaceAll(std::string const& original, std::string const& from, std::string con
     results.append(current, next);
     return results;
 }
+unsigned int TextureFromFile(const char *path,  string &directory, bool gamma = false);
+
 class Model 
 {
 public:
@@ -77,7 +76,7 @@ private:
             return;
         }
         // retrieve the directory path of the filepath
-        directory = path.substr(0, path.find_last_of('/'));
+        directory = std::filesystem::current_path().string() + "\\" + path.substr(0, path.find_last_of('/'));
 
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene);
@@ -221,22 +220,19 @@ private:
 };
 
 
-unsigned int TextureFromFile(const char *path, const string &directory, bool gamma)
+unsigned int TextureFromFile(const char *extension, string &directory, bool gamma)
 {
-    string filename = string(path);
-    filename = directory +  filename;
-   
-    std::string __path = std::filesystem::current_path().string() + string("/");
-    __path = __path + filename;
-    __path = replaceAll(__path, "/", "\\");
-   
+    string ext = string(extension);
+    string dir = directory;
+    string filename = dir.erase(0, (int)dir.find_last_of("/"));
+    string path = (directory + filename + ext);
+    path = replaceAll(path, "/", "\\");
     unsigned int textureID;
     glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
-    unsigned char *data = stbi_load(__path.c_str(), &width, &height, &nrComponents, 0);
-
-
+    unsigned char *data = stbi_load(path.c_str(), &width, &height, &nrComponents, 0);
+        
     if (data)
     {
         GLenum format;
@@ -260,7 +256,7 @@ unsigned int TextureFromFile(const char *path, const string &directory, bool gam
     }
     else
     {
-        std::cout << "Texture failed to load at path: " << __path << std::endl;
+        std::cout << "Texture failed to load at path: " << path << std::endl;
         stbi_image_free(data);
     }
 

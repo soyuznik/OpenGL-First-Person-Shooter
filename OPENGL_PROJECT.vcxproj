@@ -152,7 +152,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>assimp-vc142-mtd.lib;opengl32.lib;glfw3.lib;freetype.lib;%(AdditionalDependencies);assimp.lib</AdditionalDependencies>
+      <AdditionalDependencies>assimp-vc142-mtd.lib;opengl32.lib;glfw3.lib;freetype.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)dependencies</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -183,6 +183,7 @@
   <ItemGroup>
     <ClCompile Include="includes\glad.c" />
     <ClCompile Include="MAIN.cpp" />
+    <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\lowlevel\UTILITY.h" />
