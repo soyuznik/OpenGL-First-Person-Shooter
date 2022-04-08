@@ -1,5 +1,5 @@
 #include "TEXTURE.h"
-#include "stb_image.cpp"
+
 
 TEXTURE::TEXTURE(std::string path) {
 	// load and create a texture
@@ -31,7 +31,7 @@ TEXTURE::TEXTURE(std::string path) {
 	}
 	else
 	{
-		std::cout << "Failed to load texture" << std::endl;
+		std::cout << "Failed to load texture   " + path << std::endl;
 	}
 	stbi_image_free(data);
 }

@@ -3,6 +3,7 @@
 //for slots
 #include <shellapi.h>
 #include "UTILITY.h"
+
 //used for the type of the window input *deprecated*
 int INSTANT_MOUSE_CALLBACK;
 
@@ -39,7 +40,7 @@ void WINDOW::CONFIG_MONITOR() {
 
 	glfwGetMonitorPos(monitors[0], &monitorX, &monitorY);
 }
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void __scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 { //only yoffset changes\\ - when down ; + when up
 	ListObject* listobj = static_cast<ListObject*>(glfwGetWindowUserPointer(window));
 	listobj->update_scroll_info(yoffset);
@@ -117,7 +118,7 @@ GLFWwindow* WINDOW::DEFINE_WINDOW(int transparency) {
 		glfwSetWindowAttrib(window, GLFW_DECORATED, GLFW_TRUE);
 	}
 
-	glfwSetScrollCallback(window, scroll_callback);
+	glfwSetScrollCallback(window, __scroll_callback);
 
 	return window; // returning GLFWwindow * window
 }

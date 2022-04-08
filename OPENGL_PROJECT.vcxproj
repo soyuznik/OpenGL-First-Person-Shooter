@@ -180,14 +180,43 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="includes\glad.c" />
+    <ClCompile Include="includes\highlevel\Button.cpp" />
+    <ClCompile Include="includes\highlevel\ClickEventCanceller.cpp" />
+    <ClCompile Include="includes\highlevel\Downloader.cpp" />
+    <ClCompile Include="includes\highlevel\ListObject.cpp" />
+    <ClCompile Include="includes\highlevel\Panel.cpp" />
+    <ClCompile Include="includes\highlevel\Slider.cpp" />
+    <ClCompile Include="includes\highlevel\TextField.cpp" />
+    <ClCompile Include="includes\lowlevel\SHADER.cpp" />
+    <ClCompile Include="includes\lowlevel\TEXT.cpp" />
+    <ClCompile Include="includes\lowlevel\TEXTURE.cpp" />
+    <ClCompile Include="includes\lowlevel\VAO.cpp" />
+    <ClCompile Include="includes\lowlevel\WINDOW.cpp" />
     <ClCompile Include="MAIN.cpp" />
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shaders\height_mapper_frag.glsl" />
+    <None Include="resources\shaders\height_mapper_vertex.glsl" />
     <None Include="resources\shaders\obj_frag.glsl" />
     <None Include="resources\shaders\obj_vertex.glsl" />
+    <None Include="resources\shaders\texture_frag.glsl" />
+    <None Include="resources\shaders\texture_vertex.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="includes\highlevel\Button.h" />
+    <ClInclude Include="includes\highlevel\ClickEventCanceller.h" />
+    <ClInclude Include="includes\highlevel\Downloader.h" />
+    <ClInclude Include="includes\highlevel\ListObject.h" />
+    <ClInclude Include="includes\highlevel\Panel.h" />
+    <ClInclude Include="includes\highlevel\Slider.h" />
+    <ClInclude Include="includes\highlevel\TextField.h" />
+    <ClInclude Include="includes\lowlevel\SHADER.h" />
+    <ClInclude Include="includes\lowlevel\TEXT.h" />
+    <ClInclude Include="includes\lowlevel\TEXTURE.h" />
+    <ClInclude Include="includes\lowlevel\UTILITY.h" />
+    <ClInclude Include="includes\lowlevel\VAO.h" />
+    <ClInclude Include="includes\lowlevel\WINDOW.h" />
     <ClInclude Include="UTILITY.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
