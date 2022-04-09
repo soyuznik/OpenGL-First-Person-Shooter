@@ -1,14 +1,15 @@
 ﻿
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#define GLFW_INCLUDE_NONE
+
+
 #include "stb_image.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
+#include <lowlevel\WINDOW.h>
 #include <learnopengl/camera.h>
 #include <iostream>
 #include <vector>
-#include <lowlevel/WINDOW.h>
+
 #include <highlevel/Slider.h>
 #include <lowlevel/SHADER.h>
 ///own made //////////////////////////
@@ -16,7 +17,8 @@
 #include <lowlevel/TEXTURE.h>
 #include <learnopengl/shader_m.h>
 
-int mode = 0;
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int modifiers);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -24,7 +26,7 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
 // settings
-const unsigned int SCR_WIDTH = 1200;
+const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 int useWireframe = 0;
 int displayGrayscale = 0;
@@ -41,9 +43,6 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-
-
-
 int main()
 {
     // glfw: initialize and configure
@@ -56,56 +55,49 @@ int main()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-    
+
     // glfw window creation
     // --------------------
-    WINDOW* windowobj__ = new WINDOW(69, SCR_WIDTH, SCR_HEIGHT);
-    
-    glfwMakeContextCurrent(windowobj__->window);
-    glfwSetFramebufferSizeCallback(windowobj__->window, framebuffer_size_callback);
-    glfwSetKeyCallback(windowobj__->window, key_callback);
-    glfwSetCursorPosCallback(windowobj__->window, mouse_callback);
-    glfwSetScrollCallback(windowobj__->window, scroll_callback);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
-    Shader* texture_shader = new Shader("resources/shaders/texture_vertex.glsl", "resources/shaders/texture_frag.glsl");
-    Slider* speed_slider = new Slider(texture_shader, windowobj__, "resources/textures/button.jpg", 1100, 550, 0.1f);
- 
-    if (windowobj__->window == NULL)
+    WINDOW* _windowobj = new WINDOW(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU");
+    if (_windowobj->window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
-    
+    glfwMakeContextCurrent(_windowobj->window);
+    glfwSetFramebufferSizeCallback(_windowobj->window, framebuffer_size_callback);
+    glfwSetKeyCallback(_windowobj->window, key_callback);
+    glfwSetCursorPosCallback(_windowobj->window, mouse_callback);
+    glfwSetScrollCallback(_windowobj->window, scroll_callback);
 
     // tell GLFW to capture our mouse
-    glfwSetInputMode(windowobj__->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(_windowobj->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
-   
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
 
     // configure global opengl state
     // -----------------------------
-    glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
-    
+
     // build and compile our shader program
     // ------------------------------------
     __gl::Shader heightMapShader("resources/shaders/height_mapper_vertex.glsl",
-                           "resources/shaders/height_mapper_frag.glsl");
+        "resources/shaders/height_mapper_frag.glsl");
 
-    // load and create a texture1
+    // load and create a texture
     // -------------------------
     // load image, create texture and generate mipmaps
     // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
-    unsigned char* data = stbi_load("resources/heightmaps/river_heightmap.png", &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load("resources/heightmaps/iceland_heightmap.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
@@ -114,7 +106,6 @@ int main()
     {
         std::cout << "Failed to load texture" << std::endl;
     }
-    
 
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
@@ -174,23 +165,21 @@ int main()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, terrainIBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned), &indices[0], GL_STATIC_DRAW);
 
-    TEXTURE* rock_texture = new TEXTURE("resources/objects/rock/rock.png");
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(windowobj__->window))
+    while (!glfwWindowShouldClose(_windowobj->window))
     {
-        //glPolygonMode(GL_FRONT_AND_BACK , GL_LINE);
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        
+
         //        std::cout << deltaTime << "ms (" << 1.0f / deltaTime << " FPS)" << std::endl;
 
                 // input
                 // -----
-        processInput(windowobj__->window);
+        processInput(_windowobj->window);
 
         // render
         // ------
@@ -198,9 +187,7 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
-        speed_slider->render();
         heightMapShader.use();
-
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);
@@ -211,14 +198,12 @@ int main()
         // world transformation
         glm::mat4 model = glm::mat4(1.0f);
         heightMapShader.setMat4("model", model);
-        rock_texture->use();
+
         // render the cube
         glBindVertexArray(terrainVAO);
         //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         for (unsigned strip = 0; strip < numStrips; strip++)
         {
-          
-            heightMapShader.setInt("mode", mode);
             glDrawElements(GL_TRIANGLE_STRIP,   // primitive type
                 numTrisPerStrip + 2,   // number of indices to render
                 GL_UNSIGNED_INT,     // index data type
@@ -227,7 +212,7 @@ int main()
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
-        glfwSwapBuffers(windowobj__->window);
+        glfwSwapBuffers(_windowobj->window);
         glfwPollEvents();
     }
 
@@ -247,22 +232,20 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
-    double speed = 1;
-    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-        speed = 40;
-    else speed = 1;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime * speed);
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime * speed);
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime * speed);
+        camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime * speed);
+        camera.ProcessKeyboard(RIGHT, deltaTime);
 }
+
+
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
@@ -277,21 +260,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 // ---------------------------------------------------------------------------------------------
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int modifiers)
 {
-    static int times = 0;
-    static int times1 = 0;
     if (action == GLFW_PRESS)
     {
         switch (key)
         {
         case GLFW_KEY_SPACE:
-            
-            if (times == 0) { glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); times = 1; }
-            else if (times == 1) { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); times = 0; }
+            useWireframe = 1 - useWireframe;
             break;
         case GLFW_KEY_G:
-            
-            if (times1 == 0) { mode = 1; times1 = 1; }
-            else if (times1 == 1) { mode = 0; times1 = 0; }
+            displayGrayscale = 1 - displayGrayscale;
             break;
         default:
             break;
@@ -319,6 +296,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
     camera.ProcessMouseMovement(xoffset, yoffset);
 }
+
 
 // glfw: whenever the mouse scroll wheel scrolls, this callback is called
 // ----------------------------------------------------------------------

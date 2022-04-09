@@ -16,7 +16,7 @@ void main()
 
     if(mode == 0){
         FragColor = mix(texture(TEXTURE1 , vec2(1.0 , 1.0)) , color , 0.3f);}
-    if(mode == 1){
+   
         FragColor = vec4(h ,h ,h , 1.0f);
-        }
+    
 }

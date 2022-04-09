@@ -13,28 +13,14 @@
 #include <sstream> // stringstream for text splitting
 #include <vector>
 #include "SHADER.h"
-
-#define TRANSPARENT_INSTANT 0
-#define TRANSPARENT_WINDOW 1
-#define TRANSPARENT_WINDOW_STATIC 3
-#define TRANSPARENT_NO 2
-
 class WINDOW {
 public:
-	std::vector<int>* yaxis_offset;
-
-	int triangles_checked = 3;
-	GLFWwindow* window;
-	GLFWmonitor** monitors;
-	const GLFWvidmode* videoMode;
-	// here some stuff i dont understand xd but i think it sets the aspect ratio and monitor stuff
-	int count, windowWidth, windowHeight, monitorX, monitorY;
+	
 	// window size
 	int windowSizeW = 640, windowSizeH = 480;
-	WINDOW(int transparency, int width, int height);
-	void CONFIG_MONITOR();
-	GLFWwindow* DEFINE_WINDOW(int transparency);
-	void processinput(std::vector<glm::vec3> data, std::vector<glm::vec3> block_data, Shader shader);
+	GLFWwindow* window;
+	WINDOW(int width, int height, std::string name);
+		//SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL: Terrain CPU", NULL, NULL
 
-	void update_list_scroll(double offset);
+
 };
