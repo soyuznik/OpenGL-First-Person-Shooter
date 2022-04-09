@@ -54,7 +54,7 @@ public:
 	double dposy;
 	double dscale;
 	// dot texture
-	TEXTURE dotTexture = TEXTURE("textures/dot.png");
+	TEXTURE dotTexture = TEXTURE("resources/textures/dot.png");
 
 	// returns audio sample length
 	double return_pos(double song_lenght);
@@ -68,9 +68,9 @@ public:
 	// changed the panel position on screen
 	void change_position(double x, double y);
 	//creating a vertex array object with data from "vertices/square.buf"
-	VertexArrayObject VAO = VertexArrayObject("vertices/square_super_wide.buf");
+	VertexArrayObject VAO = VertexArrayObject("resources/vertices/square_super_wide.buf");
 	// creates a rectangle shaped - dot
-	VertexArrayObject DOT = VertexArrayObject("vertices/square.buf");
+	VertexArrayObject DOT = VertexArrayObject("resources/vertices/square.buf");
 	// not usable ----------------------------------------
 	void setText(Text* font, std::string text, float scale, float R = 0.0f, float G = 0.0f, float B = 0.0f);
 	// accepts input from user

@@ -70,6 +70,9 @@ GLFWwindow* WINDOW::DEFINE_WINDOW(int transparency) {
 		hide_titlebar = false;
 		INSTANT_MOUSE_CALLBACK = 3;
 		break;
+	case 69:
+		INSTANT_MOUSE_CALLBACK = 1;
+		break;
 	default: //  in case of an invalid type will print valid types and throw a exception
 		std::cout << "ERROR: CONFIG_GL::DEFINE_WINDOW::transparency\n"
 			<< "#define TRANSPARENT_INSTANT 0\n"
@@ -89,7 +92,7 @@ GLFWwindow* WINDOW::DEFINE_WINDOW(int transparency) {
 		std::cout << "FAILED TO LOAD WINDOW";
 		return NULL;
 	}
-
+#ifdef WINDOW_ADD_HINTS
 	// when window is clicked what it shoudl do
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	// make the window's context current
@@ -119,7 +122,7 @@ GLFWwindow* WINDOW::DEFINE_WINDOW(int transparency) {
 	}
 
 	glfwSetScrollCallback(window, __scroll_callback);
-
+#endif
 	return window; // returning GLFWwindow * window
 }
 

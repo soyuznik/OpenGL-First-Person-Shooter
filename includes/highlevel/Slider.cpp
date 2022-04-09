@@ -29,7 +29,7 @@ Slider::Slider(Shader* _shader, WINDOW* _windowobj, const char* path, double _po
 	posx = _posx;
 	posy = _posy;
 	scale = _scale;
-	txcounter = new Text(*windowobj, "fonts/Antonio-Light.ttf");
+	txcounter = new Text(*windowobj, "resources/fonts/Antonio-Light.ttf");
 
 
 
@@ -103,6 +103,7 @@ bool Slider::accept_input(glm::vec4 point) {
 }
 // create_panel invoker
 void Slider::render() {
+	
 	create_panel(shader, windowobj, &VAO, posx, posy, scale);
 }
 // not usable --------------------------------------------------------------------------

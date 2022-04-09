@@ -41,18 +41,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-WINDOW* windowobj__;
-Shader* texture_shader;
-Slider* speed_slider;
-void create_GUI() {
-   windowobj__ = new WINDOW(TRANSPARENT_WINDOW_STATIC, SCR_WIDTH, SCR_HEIGHT);
-   texture_shader = new Shader("shaders/texture_vertex.glsl", "shaders/texture_frag.glsl");
-   speed_slider =  new Slider(texture_shader, windowobj__, "resources/textures/block.png", 1100, 550, 0.1f);
 
-}
-void render_GUI() {
-    speed_slider->render();
-}
 
 
 int main()
@@ -67,32 +56,38 @@ int main()
 #ifdef __APPLE__
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 #endif
-
+    
     // glfw window creation
     // --------------------
-    create_GUI();
+    WINDOW* windowobj__ = new WINDOW(69, SCR_WIDTH, SCR_HEIGHT);
+    
+    glfwMakeContextCurrent(windowobj__->window);
+    glfwSetFramebufferSizeCallback(windowobj__->window, framebuffer_size_callback);
+    glfwSetKeyCallback(windowobj__->window, key_callback);
+    glfwSetCursorPosCallback(windowobj__->window, mouse_callback);
+    glfwSetScrollCallback(windowobj__->window, scroll_callback);
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        std::cout << "Failed to initialize GLAD" << std::endl;
+        return -1;
+    }
+    Shader* texture_shader = new Shader("resources/shaders/texture_vertex.glsl", "resources/shaders/texture_frag.glsl");
+    Slider* speed_slider = new Slider(texture_shader, windowobj__, "resources/textures/button.jpg", 1100, 550, 0.1f);
+ 
     if (windowobj__->window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
     }
-    glfwMakeContextCurrent(windowobj__->window);
-    glfwSetFramebufferSizeCallback(windowobj__->window, framebuffer_size_callback);
-    glfwSetKeyCallback(windowobj__->window, key_callback);
-    glfwSetCursorPosCallback(windowobj__->window, mouse_callback);
-    glfwSetScrollCallback(windowobj__->window, scroll_callback);
+    
 
     // tell GLFW to capture our mouse
     glfwSetInputMode(windowobj__->window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
+   
 
     // configure global opengl state
     // -----------------------------
@@ -190,7 +185,7 @@ int main()
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        render_GUI();
+        
         //        std::cout << deltaTime << "ms (" << 1.0f / deltaTime << " FPS)" << std::endl;
 
                 // input
@@ -203,7 +198,9 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // be sure to activate shader when setting uniforms/drawing objects
+        speed_slider->render();
         heightMapShader.use();
+
 
         // view/projection transformations
         glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100000.0f);

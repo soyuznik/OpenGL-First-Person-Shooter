@@ -18,7 +18,7 @@ void Text::load_text(WINDOW window, std::string font_name) {
 	// compile and setup the shader
 	// ----------------------------
 	//
-	Shader shader = Shader("shaders/text_vertex.glsl", "shaders/text_frag.glsl");
+	Shader shader = Shader("resources/shaders/text_vertex.glsl", "resources/shaders/text_frag.glsl");
 	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(window.windowSizeW), 0.0f, static_cast<float>(window.windowSizeH));
 	shader.use();
 	shaderID = shader.ID;
