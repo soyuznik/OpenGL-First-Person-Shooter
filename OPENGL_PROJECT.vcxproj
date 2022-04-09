@@ -196,6 +196,10 @@
     <ClCompile Include="stb_image.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shaders\framebuffer_frag.glsl" />
+    <None Include="resources\shaders\framebuffer_screen_frag.glsl" />
+    <None Include="resources\shaders\framebuffer_screen_vertex.glsl" />
+    <None Include="resources\shaders\framebuffer_vertex.glsl" />
     <None Include="resources\shaders\height_mapper_frag.glsl" />
     <None Include="resources\shaders\height_mapper_vertex.glsl" />
     <None Include="resources\shaders\obj_frag.glsl" />
@@ -217,7 +221,6 @@
     <ClInclude Include="includes\lowlevel\UTILITY.h" />
     <ClInclude Include="includes\lowlevel\VAO.h" />
     <ClInclude Include="includes\lowlevel\WINDOW.h" />
-    <ClInclude Include="UTILITY.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,10 +16,6 @@
 
 
 
-//recognition///////////////////////////////////
-#include "LoadAudio.h"
-class LoadAudio;
-//////////////////////////////////////////////////
 /*
 Slider class
 intended to provide a higher level of abstraction
