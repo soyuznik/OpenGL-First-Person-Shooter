@@ -1,5 +1,5 @@
 ﻿
-#define GLFW_INCLUDE_NONE
+
 
 
 #include "stb_image.h"
@@ -230,6 +230,8 @@ int main()
     // -----------
     while (!glfwWindowShouldClose(_windowobj->window))
     {
+        if (useWireframe) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        else  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         // per-frame time logic
         // --------------------
         float currentFrame = glfwGetTime();
@@ -249,7 +251,7 @@ int main()
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
+        glDisable(GL_CULL_FACE);
         // be sure to activate shader when setting uniforms/drawing objects
         heightMapShader.use();
 
@@ -264,6 +266,7 @@ int main()
         heightMapShader.setMat4("model", model);
 
         // render the cube
+        
         glBindVertexArray(terrainVAO);
         //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         for (unsigned strip = 0; strip < numStrips; strip++)
