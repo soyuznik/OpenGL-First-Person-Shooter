@@ -90,12 +90,15 @@ int main()
     // build and compile our shader program
     // ------------------------------------
   
+    Shader* texture_shader = new Shader("resources/shaders/texture_vertex.glsl", "resources/shaders/texture_frag.glsl");
+    Slider* speed_slider = new Slider(texture_shader, _windowobj, "resources/textures/blacker_gray.png", 1200, 550, 0.1f);
     __gl::Shader screenShader("resources/shaders/framebuffer_screen_vertex.glsl",
                           "resources/shaders/framebuffer_screen_frag.glsl");
-    Shader* texture_shader = new Shader("resources/shaders/texture_vertex.glsl",
-        "resources/shaders/texture_frag.glsl");
     __gl::Shader heightMapShader("resources/shaders/height_mapper_vertex.glsl",
         "resources/shaders/height_mapper_frag.glsl");
+
+
+
     heightMapShader.use();
     heightMapShader.setInt("texture1", 0);
 
@@ -283,6 +286,9 @@ int main()
         glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 
+
+
+        //speed_slider->render();
 
 
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
