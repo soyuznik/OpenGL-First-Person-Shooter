@@ -34,7 +34,7 @@ public:
 		double posx, double posy, double scale);
 	void change_position(double x, double y);
 	//creating a vertex array object with data from "vertices/square.buf"
-	VertexArrayObject VAO = VertexArrayObject("vertices/square_higher_wider.buf");
+	VertexArrayObject VAO = VertexArrayObject("resources/vertices/square_higher_wider.buf");
 
 	//checks if the point should be blocked
 	bool should_block(glm::vec4 point);

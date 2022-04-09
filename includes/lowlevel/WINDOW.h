@@ -13,6 +13,9 @@
 #include <sstream> // stringstream for text splitting
 #include <vector>
 #include "SHADER.h"
+
+
+#define HALF_SIZE 0.4f
 class WINDOW {
 public:
 	

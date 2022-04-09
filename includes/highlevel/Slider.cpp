@@ -154,7 +154,7 @@ void Slider::create_panel(Shader* texture_shader, WINDOW* windowobj, VertexArray
 	DRAW(6); // draw 6 vertices
 	texture_shader->transform(windowobj->window, posx, posy, scale);
 	//dot drawing
-	texture_shader->notnormal_transform(windowobj->window, this->setdotpos, dposy, 0.03f);
+	texture_shader->transform(windowobj->window, posx, posy, 0.03f);
 	dotTexture.use();
 	DOT.use();
 	DRAW(6);

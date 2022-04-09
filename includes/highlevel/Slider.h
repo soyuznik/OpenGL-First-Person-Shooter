@@ -64,7 +64,7 @@ public:
 	// changed the panel position on screen
 	void change_position(double x, double y);
 	//creating a vertex array object with data from "vertices/square.buf"
-	VertexArrayObject VAO = VertexArrayObject("resources/vertices/square_super_wide.buf");
+	VertexArrayObject VAO = VertexArrayObject("resources/vertices/square_kinda_wide.buf");
 	// creates a rectangle shaped - dot
 	VertexArrayObject DOT = VertexArrayObject("resources/vertices/square.buf");
 	// not usable ----------------------------------------

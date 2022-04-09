@@ -10,9 +10,6 @@
     <ClCompile Include="includes\highlevel\ClickEventCanceller.cpp">
       <Filter>self\src</Filter>
     </ClCompile>
-    <ClCompile Include="includes\highlevel\Downloader.cpp">
-      <Filter>self\src</Filter>
-    </ClCompile>
     <ClCompile Include="includes\highlevel\ListObject.cpp">
       <Filter>self\src</Filter>
     </ClCompile>
@@ -54,6 +51,9 @@
     <Filter Include="self\.h">
       <UniqueIdentifier>{22ea0261-c0e4-4ff4-bc56-5426497af3d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Vertices">
+      <UniqueIdentifier>{a48c11cf-7565-4ccf-ae0a-3f6955c863b1}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\obj_frag.glsl">
@@ -86,15 +86,48 @@
     <None Include="resources\shaders\framebuffer_vertex.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="resources\vertices\square.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_extra_high.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_extra_wide.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_extra_wide_lower.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_higher_wider.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_little_higher_menu.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_super_wide.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_textfield.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_wider.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_wider_menu.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\triangle.buf">
+      <Filter>Vertices</Filter>
+    </None>
+    <None Include="resources\vertices\square_kinda_wide.buf">
+      <Filter>Vertices</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\highlevel\Button.h">
       <Filter>self\.h</Filter>
     </ClInclude>
     <ClInclude Include="includes\highlevel\ClickEventCanceller.h">
-      <Filter>self\.h</Filter>
-    </ClInclude>
-    <ClInclude Include="includes\highlevel\Downloader.h">
       <Filter>self\.h</Filter>
     </ClInclude>
     <ClInclude Include="includes\highlevel\ListObject.h">

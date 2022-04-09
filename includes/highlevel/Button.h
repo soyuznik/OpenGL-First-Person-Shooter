@@ -29,7 +29,7 @@ public:
 	WINDOW* windowobj;
 	VertexArrayObject* VAO;
 	// loading a texture & font
-	TEXTURE* texture = new TEXTURE("textures/button.jpg");
+	TEXTURE* texture = new TEXTURE("resources/textures/button.jpg");
 	double posx;
 	double posy;
 	double scale = 0;
@@ -37,7 +37,7 @@ public:
 	//small data sample
 	std::string obj_ident = "not defined";
 	//button constructor
-	Button(Shader* shader, WINDOW* windowobj, double posx, double posy, double scale, std::string PATH = "vertices/square.buf");
+	Button(Shader* shader, WINDOW* windowobj, double posx, double posy, double scale, std::string PATH = "resources/vertices/square.buf");
 	// called inside render()
 	void create_button(Shader* texture_shader, WINDOW* windowobj, VertexArrayObject* VAO, TEXTURE* texture,
 		double posx, double posy, double scale);
