@@ -27,7 +27,7 @@ void processInput(GLFWwindow* window);
 
 // settings
 const unsigned int SCR_WIDTH = 1200;
-const unsigned int SCR_HEIGHT = 800;
+const unsigned int SCR_HEIGHT = 600;
 int useWireframe = 0;
 int displayGrayscale = 0;
 
@@ -181,11 +181,11 @@ int main()
         // positions   // texCoords
         -1.0f,  1.0f,  0.0f, 1.0f,
         -1.0f, -1.0f,  0.0f, 0.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
+         0.4f, -1.0f,  1.0f, 0.0f,
 
         -1.0f,  1.0f,  0.0f, 1.0f,
-         1.0f, -1.0f,  1.0f, 0.0f,
-         1.0f,  1.0f,  1.0f, 1.0f
+         0.4f, -1.0f,  1.0f, 0.0f,
+         0.4f,  1.0f,  1.0f, 1.0f
     };
 
     unsigned int quadVAO , quadVBO;
