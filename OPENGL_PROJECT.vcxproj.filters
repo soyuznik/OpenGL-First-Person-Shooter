@@ -98,6 +98,24 @@
     <None Include="resources\shaders\gpuheight_vertex.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="resources\shaders\basic_light_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\basic_light_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\color_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\color_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\cube_light_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\cube_light_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\highlevel\Button.h">
