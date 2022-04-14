@@ -182,6 +182,7 @@
     <ClCompile Include="includes\glad.c" />
     <ClCompile Include="includes\highlevel\Button.cpp" />
     <ClCompile Include="includes\highlevel\ClickEventCanceller.cpp" />
+    <ClCompile Include="includes\highlevel\Downloader.cpp" />
     <ClCompile Include="includes\highlevel\ListObject.cpp" />
     <ClCompile Include="includes\highlevel\Panel.cpp" />
     <ClCompile Include="includes\highlevel\Slider.cpp" />
@@ -199,28 +200,21 @@
     <None Include="resources\shaders\framebuffer_screen_frag.glsl" />
     <None Include="resources\shaders\framebuffer_screen_vertex.glsl" />
     <None Include="resources\shaders\framebuffer_vertex.glsl" />
+    <None Include="resources\shaders\gpuheight_frag.glsl" />
+    <None Include="resources\shaders\gpuheight_tcs.glsl" />
+    <None Include="resources\shaders\gpuheight_tes.glsl" />
+    <None Include="resources\shaders\gpuheight_vertex.glsl" />
     <None Include="resources\shaders\height_mapper_frag.glsl" />
     <None Include="resources\shaders\height_mapper_vertex.glsl" />
     <None Include="resources\shaders\obj_frag.glsl" />
     <None Include="resources\shaders\obj_vertex.glsl" />
     <None Include="resources\shaders\texture_frag.glsl" />
     <None Include="resources\shaders\texture_vertex.glsl" />
-    <None Include="resources\vertices\square.buf" />
-    <None Include="resources\vertices\square_extra_high.buf" />
-    <None Include="resources\vertices\square_extra_wide.buf" />
-    <None Include="resources\vertices\square_extra_wide_lower.buf" />
-    <None Include="resources\vertices\square_higher_wider.buf" />
-    <None Include="resources\vertices\square_kinda_wide.buf" />
-    <None Include="resources\vertices\square_little_higher_menu.buf" />
-    <None Include="resources\vertices\square_super_wide.buf" />
-    <None Include="resources\vertices\square_textfield.buf" />
-    <None Include="resources\vertices\square_wider.buf" />
-    <None Include="resources\vertices\square_wider_menu.buf" />
-    <None Include="resources\vertices\triangle.buf" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\highlevel\Button.h" />
     <ClInclude Include="includes\highlevel\ClickEventCanceller.h" />
+    <ClInclude Include="includes\highlevel\Downloader.h" />
     <ClInclude Include="includes\highlevel\ListObject.h" />
     <ClInclude Include="includes\highlevel\Panel.h" />
     <ClInclude Include="includes\highlevel\Slider.h" />

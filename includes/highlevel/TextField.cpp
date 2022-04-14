@@ -19,12 +19,12 @@ TextField::TextField(Shader* shader_, WINDOW* window_, double posx_, double posy
 	posx = posx_;
 	posy = posy_;
 
-	Panel* panel__ = new Panel(shader, window, "resources/textures/search_bar.png", posx + 100, posy, 0.15f , "resources/vertices/square_textfield.buf");
+	Panel* panel__ = new Panel(shader, window, "textures/search_bar.png", posx + 100, posy, 0.15f , "vertices/square_textfield.buf");
 
 	///////////////// Custom font creation //////////////////////////
 	// https://www.glyphrstudio.com/online/
 	// https://cloudconvert.com/otf-to-ttf
-	Text* antonio_bold__ = new Text(*window, "resources/fonts/Antonio-BoldCustom.ttf");
+	Text* antonio_bold__ = new Text(*window, "fonts/Antonio-BoldCustom.ttf");
 	panel = panel__;
 	antonio_bold = antonio_bold__;
 }
