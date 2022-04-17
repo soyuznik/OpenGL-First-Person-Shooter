@@ -15,6 +15,9 @@
 
 #include <iostream>
 #include <vector>
+#include <iterator>
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int modifiers);
@@ -27,6 +30,13 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 const unsigned int NUM_PATCH_PTS = 4;
 
+
+
+
+
+
+
+int VERTEX_COUNT;
 // camera - give pretty starting point
 Camera camera(glm::vec3(67.0f, 627.5f, 169.9f),
     glm::vec3(0.0f, 1.0f, 0.0f),
@@ -38,6 +48,62 @@ bool firstMouse = true;
 // timing
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+/*
+float barryCentric(glm::vec3 p1, glm::vec3 p2, glm::vec3 p3, glm::vec2 pos) {
+    float det = (p2.z - p3.z) * (p1.x - p3.x) + (p3.x - p2.x) * (p1.z - p3.z);
+    float l1 = ((p2.z - p3.z) * (pos.x - p3.x) + (p3.x - p2.x) * (pos.y - p3.z)) / det;
+    float l2 = ((p3.z - p1.z) * (pos.x - p3.x) + (p1.x - p3.x) * (pos.y - p3.z)) / det;
+    float l3 = 1.0f - l1 - l2;
+    return l1 * p1.y + l2 * p2.y + l3 * p3.y;
+}
+
+float GetCurrentHeight(std::vector<float>* vertices , float width , float height) {
+     
+    
+   
+
+    float gridWidth = width / VERTEX_COUNT;
+    float gridHeight = height / VERTEX_COUNT;
+    //   camera.Position ==> x,y,z
+    int gridX = camera.Position.x / ((float)sizeof(heights) / sizeof(heights[0]));
+    int gridZ = camera.Position.x / ((float)sizeof(heights) / sizeof(heights[0]));
+
+    if (gridX > (gridWidth - 1) or gridZ > (gridHeight - 1) or gridX < 0 or gridZ < 0) {
+        gridX = 0; gridZ = 0;
+    }
+
+    float xCoord = (camera.Position.x / gridWidth) / gridWidth;
+    float zCoord = (camera.Position.y / gridHeight) / gridHeight;
+    float answer;
+    if (xCoord <= (1 - zCoord)) {
+        answer = barryCentric(glm::vec3(0, heights[gridX][gridZ], 0), glm::vec3(1,
+            heights[gridX + 1][gridZ], 0), glm::vec3(0,
+                heights[gridX][gridZ + 1], 1), glm::vec2(xCoord, zCoord));
+    }
+    else {
+        answer = barryCentric(glm::vec3(1, heights[gridX + 1][gridZ], 0), glm::vec3(1,
+            heights[gridX + 1][gridZ + 1], 1), glm::vec3(0,
+                heights[gridX][gridZ + 1], 1), glm::vec2(xCoord, zCoord));
+    }
+    //deallocate the array
+    for (int i = 0; i < VERTEX_COUNT; i++)
+        delete[] heights[i];
+    delete[] heights;
+    return answer;
+
+}
+*/
+
+glm::vec4 __GetPixel(stbi_uc* image, size_t imageWidth, size_t x, size_t y) {
+    const stbi_uc* p = image + (4 * (y * imageWidth + x));
+    int r = p[0];
+    int g = p[1];
+    int b = p[2];
+    int a = p[3];
+    return glm::vec4(r, g, b, a);
+}
+
+
 
 int main()
 {
@@ -70,93 +136,99 @@ int main()
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+// glad: load all OpenGL function pointers
+// ---------------------------------------
+if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+{
+    std::cout << "Failed to initialize GLAD" << std::endl;
+    return -1;
+}
+
+GLint maxTessLevel;
+glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
+std::cout << "Max available tess level: " << maxTessLevel << std::endl;
+
+// configure global opengl state
+// -----------------------------
+glEnable(GL_DEPTH_TEST);
+
+// build and compile our shader program
+// ------------------------------------
+__gl::Shader tessHeightMapShader("resources/shaders/gpuheight_vertex.glsl",
+    "resources/shaders/gpuheight_frag.glsl", nullptr,            // if wishing to render as is
+    "resources/shaders/gpuheight_tcs.glsl",
+    "resources/shaders/gpuheight_tes.glsl");
+
+// load and create a texture
+// -------------------------
+unsigned int texture;
+glGenTextures(1, &texture);
+glActiveTexture(GL_TEXTURE0);
+glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+// set the texture wrapping parameters
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+// set texture filtering parameters
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+// load image, create texture and generate mipmaps
+int width, height, nrChannels;
+// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
+unsigned char* data = stbi_load("resources/heightmaps/iceland_heightmap.png", &width, &height, &nrChannels, 4);
+if (data)
+{
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    tessHeightMapShader.setInt("heightMap", 0);
+    std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
+}
+else
+{
+    std::cout << "Failed to load texture" << std::endl;
+}
+
+
+// set up vertex data (and buffer(s)) and configure vertex attributes
+// ------------------------------------------------------------------
+std::vector<float> vertices;
+
+unsigned rez = 20;
+//allocate the array
+
+for (unsigned i = 0; i <= rez - 1; i++)
+{
+    for (unsigned j = 0; j <= rez - 1; j++)
     {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        vertices.push_back(-width / 2.0f + width * i / (float)rez); // v.x
+        vertices.push_back(0.0f); // v.y
+        vertices.push_back(-height / 2.0f + height * j / (float)rez); // v.z
+        vertices.push_back(i / (float)rez); // u
+        vertices.push_back(j / (float)rez); // v
+
+        vertices.push_back(-width / 2.0f + width * (i + 1) / (float)rez); // v.x
+        vertices.push_back(0.0f); // v.y
+        vertices.push_back(-height / 2.0f + height * j / (float)rez); // v.z
+        vertices.push_back((i + 1) / (float)rez); // u
+        vertices.push_back(j / (float)rez); // v
+
+        vertices.push_back(-width / 2.0f + width * i / (float)rez); // v.x
+        vertices.push_back(0.0f); // v.y
+        vertices.push_back(-height / 2.0f + height * (j + 1) / (float)rez); // v.z
+        vertices.push_back(i / (float)rez); // u
+        vertices.push_back((j + 1) / (float)rez); // v
+
+        vertices.push_back(-width / 2.0f + width * (i + 1) / (float)rez); // v.x
+        vertices.push_back(0.0f); // v.y
+        vertices.push_back(-height / 2.0f + height * (j + 1) / (float)rez); // v.z
+        vertices.push_back((i + 1) / (float)rez); // u
+        vertices.push_back((j + 1) / (float)rez); // v
+
+
+        
     }
-
-    GLint maxTessLevel;
-    glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
-    std::cout << "Max available tess level: " << maxTessLevel << std::endl;
-
-    // configure global opengl state
-    // -----------------------------
-    glEnable(GL_DEPTH_TEST);
-
-    // build and compile our shader program
-    // ------------------------------------
-    __gl::Shader tessHeightMapShader("resources/shaders/gpuheight_vertex.glsl",
-        "resources/shaders/gpuheight_frag.glsl", nullptr,            // if wishing to render as is
-        "resources/shaders/gpuheight_tcs.glsl",
-        "resources/shaders/gpuheight_tes.glsl");
-
-    // load and create a texture
-    // -------------------------
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
-    // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    // load image, create texture and generate mipmaps
-    int width, height, nrChannels;
-    // The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-    unsigned char* data = stbi_load("resources/heightmaps/iceland_heightmap.png", &width, &height, &nrChannels, 0);
-    if (data)
-    {
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        tessHeightMapShader.setInt("heightMap", 0);
-        std::cout << "Loaded heightmap of size " << height << " x " << width << std::endl;
-    }
-    else
-    {
-        std::cout << "Failed to load texture" << std::endl;
-    }
-    stbi_image_free(data);
-
-    // set up vertex data (and buffer(s)) and configure vertex attributes
-    // ------------------------------------------------------------------
-    std::vector<float> vertices;
-
-    unsigned rez = 20;
-    for (unsigned i = 0; i <= rez - 1; i++)
-    {
-        for (unsigned j = 0; j <= rez - 1; j++)
-        {
-            vertices.push_back(-width / 2.0f + width * i / (float)rez); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * j / (float)rez); // v.z
-            vertices.push_back(i / (float)rez); // u
-            vertices.push_back(j / (float)rez); // v
-
-            vertices.push_back(-width / 2.0f + width * (i + 1) / (float)rez); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * j / (float)rez); // v.z
-            vertices.push_back((i + 1) / (float)rez); // u
-            vertices.push_back(j / (float)rez); // v
-
-            vertices.push_back(-width / 2.0f + width * i / (float)rez); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * (j + 1) / (float)rez); // v.z
-            vertices.push_back(i / (float)rez); // u
-            vertices.push_back((j + 1) / (float)rez); // v
-
-            vertices.push_back(-width / 2.0f + width * (i + 1) / (float)rez); // v.x
-            vertices.push_back(0.0f); // v.y
-            vertices.push_back(-height / 2.0f + height * (j + 1) / (float)rez); // v.z
-            vertices.push_back((i + 1) / (float)rez); // u
-            vertices.push_back((j + 1) / (float)rez); // v
-        }
-    }
+}
+    VERTEX_COUNT =  vertices.size() / 5;
     std::cout << "Loaded " << rez * rez << " patches of 4 control points each" << std::endl;
     std::cout << "Processing " << rez * rez * 4 << " vertices in vertex shader" << std::endl;
 
@@ -298,7 +370,15 @@ int main()
         // input
         // -----
         processInput(window);
-
+       // float crtHeight = GetCurrentHeight(&vertices, width, height);
+     //   if (camera.Position.y < crtHeight) {
+    //        camera.Position.y = crtHeight;
+    //    }
+        glm::vec4 RGBA = __GetPixel(data, width, 627, 627);
+        std::cout << std::to_string(RGBA.r) << std::endl;
+        std::cout << std::to_string(RGBA.g) << std::endl;
+        std::cout << std::to_string(RGBA.b) << std::endl;
+        std::cout << std::to_string(RGBA.a) << std::endl << std::endl;
         // render
         // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -366,7 +446,7 @@ int main()
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &terrainVAO);
     glDeleteBuffers(1, &terrainVBO);
-
+    stbi_image_free(data);
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
@@ -377,7 +457,17 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
+    static int press = 1;
     double speed = 1;
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        press = 1 - press;
+        if (press == 0) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        }
+        if (press == 1) {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+    }
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         speed = 20;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
