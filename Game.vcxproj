@@ -1,0 +1,175 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\BasicMesh.frag" />
+    <None Include="Shaders\BasicMesh.vert" />
+    <None Include="Shaders\Phong.frag" />
+    <None Include="Shaders\Phong.vert" />
+    <None Include="Shaders\Sprite.frag" />
+    <None Include="Shaders\Sprite.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="base\headers\Actor.h" />
+    <ClInclude Include="base\headers\AudioComponent.h" />
+    <ClInclude Include="base\headers\AudioSystem.h" />
+    <ClInclude Include="base\headers\BallActor.h" />
+    <ClInclude Include="base\headers\BallMove.h" />
+    <ClInclude Include="base\headers\BoxComponent.h" />
+    <ClInclude Include="base\headers\CameraComponent.h" />
+    <ClInclude Include="base\headers\Collision.h" />
+    <ClInclude Include="base\headers\Component.h" />
+    <ClInclude Include="base\headers\FPSActor.h" />
+    <ClInclude Include="base\headers\FPSCamera.h" />
+    <ClInclude Include="base\headers\Game.h" />
+    <ClInclude Include="base\headers\GameMath.h" />
+    <ClInclude Include="base\headers\Mesh.h" />
+    <ClInclude Include="base\headers\MeshComponent.h" />
+    <ClInclude Include="base\headers\MoveComponent.h" />
+    <ClInclude Include="base\headers\PhysWorld.h" />
+    <ClInclude Include="base\headers\PlaneActor.h" />
+    <ClInclude Include="base\headers\Renderer.h" />
+    <ClInclude Include="base\headers\Shader.h" />
+    <ClInclude Include="base\headers\SoundEvent.h" />
+    <ClInclude Include="base\headers\SpriteComponent.h" />
+    <ClInclude Include="base\headers\TargetActor.h" />
+    <ClInclude Include="base\headers\Texture.h" />
+    <ClInclude Include="base\headers\VertexArray.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="base\src\Actor.cpp" />
+    <ClCompile Include="base\src\AudioComponent.cpp" />
+    <ClCompile Include="base\src\AudioSystem.cpp" />
+    <ClCompile Include="base\src\BallActor.cpp" />
+    <ClCompile Include="base\src\BallMove.cpp" />
+    <ClCompile Include="base\src\BoxComponent.cpp" />
+    <ClCompile Include="base\src\CameraComponent.cpp" />
+    <ClCompile Include="base\src\Collision.cpp" />
+    <ClCompile Include="base\src\Component.cpp" />
+    <ClCompile Include="base\src\FPSActor.cpp" />
+    <ClCompile Include="base\src\FPSCamera.cpp" />
+    <ClCompile Include="base\src\Game.cpp" />
+    <ClCompile Include="base\src\GameMath.cpp" />
+    <ClCompile Include="base\src\Mesh.cpp" />
+    <ClCompile Include="base\src\MeshComponent.cpp" />
+    <ClCompile Include="base\src\MoveComponent.cpp" />
+    <ClCompile Include="base\src\PhysWorld.cpp" />
+    <ClCompile Include="base\src\PlaneActor.cpp" />
+    <ClCompile Include="base\src\Renderer.cpp" />
+    <ClCompile Include="base\src\Shader.cpp" />
+    <ClCompile Include="base\src\SoundEvent.cpp" />
+    <ClCompile Include="base\src\SpriteComponent.cpp" />
+    <ClCompile Include="base\src\TargetActor.cpp" />
+    <ClCompile Include="base\src\Texture.cpp" />
+    <ClCompile Include="base\src\VertexArray.cpp" />
+    <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{BC508D87-495F-4554-932D-DD68388B63CC}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Game</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <OutDir>$(SolutionDir)build\bin.$(Platform).$(Configuration)</OutDir>
+    <IntDir>$(SolutionDir)build\obj.$(Platform).$(Configuration)</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <OutDir>$(SolutionDir)build\bin.$(Platform).$(Configuration)</OutDir>
+    <IntDir>$(SolutionDir)build\obj.$(Platform).$(Configuration)</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\external\SDL\include;..\external\GLEW\include;..\external\SOIL\include;..\external\rapidjson\include;$(SolutionDir)include;$(SolutionDir)base\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>..\external\SDL\lib\win\x86;..\external\GLEW\lib\win\x86;..\external\SOIL\lib\win\x86;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_mixer.lib;SDL2_image.lib;glew32.lib;SOIL.lib;fmodL_vc.lib;fmodstudioL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalOptions>/NODEFAULTLIB:msvcrt.lib %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>rmdir -r "$(SolutionDir)build\bin.$(Platform).$(Configuration)" &amp;&amp; xcopy /s $(SolutionDir)dlls $(SolutionDir)build\bin.$(Platform).$(Configuration)</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>..\external\SDL\include;..\external\GLEW\include;..\external\SOIL\include;..\external\rapidjson\include;$(SolutionDir)include;$(SolutionDir)base\headers;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <ExceptionHandling>Sync</ExceptionHandling>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>..\external\SDL\lib\win\x86;..\external\GLEW\lib\win\x86;..\external\SOIL\lib\win\x86;$(SolutionDir)lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opengl32.lib;SDL2.lib;SDL2main.lib;SDL2_ttf.lib;SDL2_mixer.lib;SDL2_image.lib;glew32.lib;SOIL.lib;fmodL_vc.lib;fmodstudioL_vc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PreBuildEvent>
+      <Command>rmdir -r "$(SolutionDir)build\bin.$(Platform).$(Configuration)" &amp;&amp; xcopy /s $(SolutionDir)dlls $(SolutionDir)build\bin.$(Platform).$(Configuration)
+</Command>
+    </PreBuildEvent>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

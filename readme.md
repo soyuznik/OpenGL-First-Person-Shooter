@@ -1,2 +1,0 @@
-# An OpenGl Terrain Editor
-
