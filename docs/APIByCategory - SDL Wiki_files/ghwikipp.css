@@ -1,0 +1,141 @@
+:root {
+  color-scheme: dark light; /* both supported */
+}
+
+html {
+  background-color: aliceblue;
+  padding: 20px;
+}
+
+body {
+  background-color: white;
+  padding: 2vw;
+  color: #333;
+  max-width: 1200px;
+  margin: 50px;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 16px;
+  line-height: 1.3;
+  font-family: sans-serif;
+  overflow-wrap: break-word;
+}
+
+a{
+  color: #307ABD;
+  text-decoration: none;
+}
+
+h1{
+  border-bottom: 2px solid #efefef;
+}
+
+h2{
+  border-bottom: 1px solid #efefef;
+}
+
+p{
+  max-width: 85ch;
+  font-family: serif;
+}
+
+ul{
+  list-style-type: none;
+}
+
+li{
+  margin-top: 1em;
+  margin-bottom: 1em;
+  max-width: 85ch;
+  font-family: serif;
+}
+
+div.sourceCode {
+  background-color: rgba(128, 128, 128, 0.2);
+  border: 0.3vmax ridge #333;
+  width: fit-content;
+  padding: 1vmax;
+}
+
+table {
+  border: 3px ridge #333;
+  border-collapse: collapse;
+}
+
+td {
+  border: 1px solid #333;
+  padding: 5px;
+}
+
+.wikitopbanner {
+  background-color: #efefef;
+  padding: 10px;
+  margin-bottom: 10px;
+  width: auto;
+}
+
+.wikibottombanner {
+  background-color: #efefef;
+  padding: 10px;
+  margin-top: 10px;
+  width: auto;
+}
+
+.alertBox {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  max-width: 60%;
+  line-height: 1.5em;
+  padding: 10;
+  margin:auto;
+}
+
+.anchorImage {
+  visibility: hidden;
+  padding-left: 0.2em;
+}
+
+.anchorText {
+}
+
+.anchorText:hover .anchorImage{
+  visibility: visible;
+}
+
+
+/* Text and background color for dark mode */
+@media (prefers-color-scheme: dark) {
+  html {
+    background-color: #000022;
+  }
+
+  body {
+    color: #adbac7;
+    background-color: #22272e;
+  }
+
+  div.sourceCode {
+    border-color: #AAA;
+  }
+
+  a {
+    color: #809fff;
+    text-decoration: none;
+  }
+
+  table {
+    border: 3px ridge #AAAAAA;
+  }
+
+  td {
+    border: 1px solid #AAAAAA;
+  }
+
+  .wikitopbanner {
+    background-color: #4d6080;
+  }
+
+  .wikibottombanner {
+    background-color: #4d6080;
+  }
+}
