@@ -8,6 +8,12 @@
     <Filter Include="Implementations">
       <UniqueIdentifier>{646751b1-37d2-4697-9310-cf7c9651b98c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Base">
+      <UniqueIdentifier>{7555abfe-bba2-4771-837e-ec1e09fd31a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{c8b2f75d-3747-4939-bac2-f114aeeedf90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -19,5 +25,18 @@
     <ClCompile Include="includes\stb_image.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\learnopengl\model.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\7.4.camera.fs">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\7.4.camera.vs">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

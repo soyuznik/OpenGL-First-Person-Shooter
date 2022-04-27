@@ -110,73 +110,6 @@ bool Intersect(Sphere& s,AABB& box)
 
 
 
-////////////////////////////////// .obj file loader ////////////////////////////////////////////////
-
-
-class ObjLoader {
-public:
-    std::vector<vec4> vertices; //v
-    std::vector<vec2> texture_coordinates; //vt
-    
-    ObjLoader();
-    void LoadObjFile(std::string filepath);
-    void Clear();
-    bool Contains(std::string WhichToSearch, std::string WhatToSearch);
-
-};
-ObjLoader::ObjLoader(){}
-
-
-bool ObjLoader::Contains(std::string WhichToSearch, std::string WhatToSearch) {
-    if (WhichToSearch.find(WhatToSearch) != std::string::npos) {
-        return true;
-    }
-    return false;
-}
-
-void ObjLoader::LoadObjFile(std::string filepath) {
-    ifstream file;
-    file.open(filepath);
-    std::string line;
-    while (std::getline(file, line)) {
-        if (line == "") continue;
-        if (Contains(line, "#")) {
-            continue;
-        }
-        if (Contains(line, "v ")) {
-            using namespace std;
-            stringstream _line(line);
-            string invalid , x, y, z, w;
-            _line >> invalid >> x >> y >> z >> w;
-            if (x.empty() || y.empty() || z.empty()) {
-                throw("Invalid Position");
-            }
-            if (w == "") {
-                w = "1.0";
-            }
-            vertices.push_back(vec4(stof(x.c_str()), stof(y.c_str()), stof(z.c_str()), stof(w.c_str())));
-            
-        }
-        if (Contains(line, "vt ")) {
-            using namespace std;
-            stringstream _line(line);
-            string invalid , u , v;
-            _line >> invalid >> u >> v ;
-            if (u.empty() || v.empty()) {
-                throw("Invalid Position");
-            }
-            texture_coordinates.push_back(vec2(stof(u.c_str()), stof(v.c_str())));
-            
-        }
-
-    }
-
-}
-void ObjLoader::Clear() {
-    vertices.clear();
-    texture_coordinates.clear();
-}
-
 
 
 
@@ -305,50 +238,11 @@ int main()
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
-    ObjLoader loader;
-    loader.LoadObjFile("resources/m4a1.obj");
-    std::vector<vec4> VerVec = loader.vertices;
-    std::vector<vec2> VtVec = loader.texture_coordinates;
-    std::vector<float> vertices;
-    for (int i = 0; i < VerVec.size(); i++) {
-        vertices.push_back(VerVec[i].x);
-        vertices.push_back(VerVec[i].y);
-        vertices.push_back(VerVec[i].z);
-        vertices.push_back(VtVec[i].x);
-        vertices.push_back(VtVec[i].y);
-    }
-    std::vector<vec3> points;
-    for (unsigned int a = 0; a < vertices.size(); a = a + 5) {
-        points.push_back(vec3(vertices[a], vertices[a + 1], vertices[a + 2]));
-
-    }
-    AABB box(points[0], points[0]);
-    for (size_t i = 1; i < points.size(); i++)
-    {
-        box.UpdateMinMax(points[i]);
-    }
-
+    Model gun("resources/m4a1.obj");
     
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, (vertices.size() * sizeof(float)), vertices.data(), GL_STATIC_DRAW);
-
-    // position attribute
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    // texture coord attribute
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    //std::cout << glGetError();
-
-    // load and create a texture 
-    // -------------------------
-    unsigned int texture1, texture2;
+    
+    
+    unsigned int texture1;
     // texture 1
     // ---------
     glGenTextures(1, &texture1);
@@ -434,13 +328,18 @@ int main()
         glm::mat4 view = camera.GetViewMatrix();
         ourShader.setMat4("view", view);
 
-        // render boxes
-        glBindVertexArray(VAO);
-        // calculate the model matrix for each object and pass it to shader before drawing
-        glm::mat4 model = glm::mat4(0.1f); // make sure to initialize matrix to identity matrix first
-        ourShader.setMat4("model", model);
         
-        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/5);
+      
+        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 trans = glm::translate(glm::mat4(1.0f), camera.Position);
+        glm::mat4 rot = glm::rotate(trans, glm::radians(180.0f), glm::vec3(1.0f, 1.0f, 0.0f));
+        glm::mat4 scal = glm::scale(trans, glm::vec3(0.03f, 0.03f, 0.03f));
+        
+       // trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.5f, 0.0f));
+        model =  trans * rot * scal * glm::inverse(view);
+        ourShader.setMat4("model", model);
+        gun.Draw(ourShader);
+        
             
        
 
@@ -452,8 +351,7 @@ int main()
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+   
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -465,17 +363,20 @@ int main()
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
+    double speed = 1.0;
+    if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
+        speed = 5;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.ProcessKeyboard(FORWARD, deltaTime * speed);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.ProcessKeyboard(BACKWARD, deltaTime * speed);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera.ProcessKeyboard(LEFT, deltaTime * speed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera.ProcessKeyboard(RIGHT, deltaTime * speed);
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
