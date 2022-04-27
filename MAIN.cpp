@@ -14,7 +14,14 @@
 
 #include <iostream>
 #include <algorithm>
+
+#include <fstream>
+#include <sstream>
+
+
 using glm::vec3;
+using glm::vec4;
+using glm::vec2;
 using std::min;
 using std::max;
 
@@ -103,6 +110,85 @@ bool Intersect(Sphere& s,AABB& box)
 
 
 
+////////////////////////////////// .obj file loader ////////////////////////////////////////////////
+
+
+class ObjLoader {
+public:
+    std::vector<vec4> vertices; //v
+    std::vector<vec2> texture_coordinates; //vt
+    
+    ObjLoader();
+    void LoadObjFile(std::string filepath);
+    void Clear();
+    bool Contains(std::string WhichToSearch, std::string WhatToSearch);
+
+};
+ObjLoader::ObjLoader(){}
+
+
+bool ObjLoader::Contains(std::string WhichToSearch, std::string WhatToSearch) {
+    if (WhichToSearch.find(WhatToSearch) != std::string::npos) {
+        return true;
+    }
+    return false;
+}
+
+void ObjLoader::LoadObjFile(std::string filepath) {
+    ifstream file;
+    file.open(filepath);
+    std::string line;
+    while (std::getline(file, line)) {
+        if (line == "") continue;
+        if (Contains(line, "#")) {
+            continue;
+        }
+        if (Contains(line, "v ")) {
+            using namespace std;
+            stringstream _line(line);
+            string invalid , x, y, z, w;
+            _line >> invalid >> x >> y >> z >> w;
+            if (x.empty() || y.empty() || z.empty()) {
+                throw("Invalid Position");
+            }
+            if (w == "") {
+                w = "1.0";
+            }
+            vertices.push_back(vec4(stof(x.c_str()), stof(y.c_str()), stof(z.c_str()), stof(w.c_str())));
+            
+        }
+        if (Contains(line, "vt ")) {
+            using namespace std;
+            stringstream _line(line);
+            string invalid , u , v;
+            _line >> invalid >> u >> v ;
+            if (u.empty() || v.empty()) {
+                throw("Invalid Position");
+            }
+            texture_coordinates.push_back(vec2(stof(u.c_str()), stof(v.c_str())));
+            
+        }
+
+    }
+
+}
+void ObjLoader::Clear() {
+    vertices.clear();
+    texture_coordinates.clear();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -176,7 +262,7 @@ int main()
     
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float vertices[] = {
+    float vertices1[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
@@ -219,8 +305,20 @@ int main()
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
+    ObjLoader loader;
+    loader.LoadObjFile("resources/m4a1.obj");
+    std::vector<vec4> VerVec = loader.vertices;
+    std::vector<vec2> VtVec = loader.texture_coordinates;
+    std::vector<float> vertices;
+    for (int i = 0; i < VerVec.size(); i++) {
+        vertices.push_back(VerVec[i].x);
+        vertices.push_back(VerVec[i].y);
+        vertices.push_back(VerVec[i].z);
+        vertices.push_back(VtVec[i].x);
+        vertices.push_back(VtVec[i].y);
+    }
     std::vector<vec3> points;
-    for (unsigned int a = 0; a < sizeof(vertices) / sizeof(vertices[0]); a = a + 5) {
+    for (unsigned int a = 0; a < vertices.size(); a = a + 5) {
         points.push_back(vec3(vertices[a], vertices[a + 1], vertices[a + 2]));
 
     }
@@ -238,7 +336,7 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (vertices.size() * sizeof(float)), vertices.data(), GL_STATIC_DRAW);
 
     // position attribute
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
@@ -246,7 +344,7 @@ int main()
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-
+    //std::cout << glGetError();
 
     // load and create a texture 
     // -------------------------
@@ -264,7 +362,7 @@ int main()
     // load image, create texture and generate mipmaps
     int width, height, nrChannels;
     stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-    unsigned char* data = stbi_load("resources/textures/container.jpg", &width, &height, &nrChannels, 0);
+    unsigned char* data = stbi_load("resources/gray.png", &width, &height, &nrChannels, 0);
     if (data)
     {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -277,14 +375,14 @@ int main()
     stbi_image_free(data);
     // texture 2
     // ---------
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
+    //glGenTextures(1, &texture2);
+   // glBindTexture(GL_TEXTURE_2D, texture2);
     // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  //  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  //  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     // set texture filtering parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  //  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  //  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
 
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
@@ -305,12 +403,12 @@ int main()
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-        Sphere cameraSphere(camera.Position, 0.2f);
+       // Sphere cameraSphere(camera.Position, 0.2f);
         
-        if (Intersect(cameraSphere , box)) {
-           camera.Position = saveLastPostion;
-        }
-        else saveLastPostion = camera.Position;
+     //   if (Intersect(cameraSphere , box)) {
+     //      camera.Position = saveLastPostion;
+    //    }
+    //    else saveLastPostion = camera.Position;
         // input
         // -----
         processInput(window);
@@ -319,12 +417,11 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+        glEnable(GL_DEPTH_TEST);
         // bind textures on corresponding texture units
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, texture2);
+       
 
         // activate shader
         ourShader.use();
@@ -340,10 +437,10 @@ int main()
         // render boxes
         glBindVertexArray(VAO);
         // calculate the model matrix for each object and pass it to shader before drawing
-        glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+        glm::mat4 model = glm::mat4(0.1f); // make sure to initialize matrix to identity matrix first
         ourShader.setMat4("model", model);
         
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glDrawArrays(GL_TRIANGLES, 0, vertices.size()/5);
             
        
 
