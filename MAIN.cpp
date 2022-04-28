@@ -329,14 +329,19 @@ int main()
         ourShader.setMat4("view", view);
 
         
-      
+        glm::mat4 gunProj = projection;
+        //glm::lookAt(Position, Position + Front, Up);
+        glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+        gunView = glm::rotate(gunView, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 gunModel = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+        //gunModel = glm::rotate(gunModel, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+
+        ourShader.setMat4("projection", gunProj);
+        ourShader.setMat4("view", gunView);
+        ourShader.setMat4("gunModel", gunModel);
+        gun.Draw(ourShader);
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 trans = glm::translate(glm::mat4(1.0f), camera.Position);
-        glm::mat4 rot = glm::rotate(trans, glm::radians(180.0f), glm::vec3(1.0f, 1.0f, 0.0f));
-        glm::mat4 scal = glm::scale(trans, glm::vec3(0.03f, 0.03f, 0.03f));
-        
-       // trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0f, 0.5f, 0.0f));
-        model =  trans * rot * scal * glm::inverse(view);
         ourShader.setMat4("model", model);
         gun.Draw(ourShader);
         
