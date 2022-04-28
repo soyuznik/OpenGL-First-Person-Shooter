@@ -18,9 +18,12 @@
 #include <fstream>
 #include <sstream>
 
+#include <FMOD/fmod.h>
+#include <FMOD/fmod_studio.hpp>
+#include <FMOD/fmod_errors.h>
+
 #include <random>
-#include <SoLoud/soloud.h>
-#include <SoLoud/soloud_wavstream.h>
+#include <thread>
 using glm::vec3;
 using glm::vec4;
 using glm::vec2;
@@ -113,6 +116,15 @@ float s_rand(float _min, float _max)
     return randomNum(std::mt19937(time(NULL)));
 }
 
+///////////////////////////// Sound /////////////////////////////////////////
+
+bool ShootingFinished = true;
+void playShooting(FMOD::ChannelGroup* channelGroup , FMOD::Sound* sound , FMOD::System* system) {
+    Sleep(100);
+    FMOD::Channel* channel;
+    system->playSound(sound, channelGroup, false, &channel);
+    ShootingFinished = true;
+}
 
 
 
@@ -131,9 +143,6 @@ float s_rand(float _min, float _max)
 
 
 
-
-SoLoud::Soloud soloud; // Engine core
-SoLoud::WavStream shootingSnd;    // One sample
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -339,19 +348,35 @@ int main()
 
 
     //load sounds
+    FMOD_RESULT result;
+    FMOD::System* system;
 
+    result = FMOD::System_Create(&system);		// Create the main system object.
+    if (result != FMOD_OK)
+    {
+        printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+        exit(-1);
+    }
 
+    result = system->init(100 , FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
 
+    if (result != FMOD_OK)
+    {
+        printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+        exit(-1);
+    }
 
-    // Initialize SoLoud (automatic back-end selection)
-    soloud.init();
-    shootingSnd.load("resources/m4a1_sound.mp3"); // Load a wave file
+    FMOD::Sound* sound;
+    result = system->createSound("resources/m4a1_ff.mp3", FMOD_DEFAULT, FMOD_DEFAULT, &sound);		// FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
     
+    // Create the channel group.
+    FMOD::ChannelGroup* channelGroup = nullptr;
+    result = system->createChannelGroup("inGameSoundEffects", &channelGroup);
 
-
+    
 
     vec3 saveLastPostion = camera.Position;
-    
+    double should_start = 0;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -400,9 +425,12 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture2);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
-
+        if (Shooting && ShootingFinished) {
+            std::thread ShootingPlayback(&playShooting, channelGroup, sound, system);
+            ShootingFinished = false;
+            ShootingPlayback.detach();
+        }
+        system->update();
 
         // draw fps gun
         // bind textures on corresponding texture units
@@ -413,9 +441,6 @@ int main()
         glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
         gunView = glm::rotate(gunView, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::mat4(1.0f);
-        if (Shooting) {
-            model = glm::translate(model, glm::vec3(0.0f, 0.0f, s_rand(0.0f, 1.0f)));
-        }
         ourShader.setMat4("model", model);
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", gunView);
@@ -455,16 +480,11 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)) {
         Shooting = true;
-        if (should_play) {
-            should_play = false;
-            soloud.play(shootingSnd);
-        }
     }
-    else { 
-        Shooting = false; 
-        shootingSnd.stop();
-        should_play = true;
+    else {
+        Shooting = false;
     }
+
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime * speed);
