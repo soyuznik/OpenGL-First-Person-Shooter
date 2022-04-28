@@ -120,7 +120,7 @@ float s_rand(float _min, float _max)
 
 bool ShootingFinished = true;
 void playShooting(FMOD::ChannelGroup* channelGroup , FMOD::Sound* sound , FMOD::System* system) {
-    Sleep(100);
+    Sleep(110);
     FMOD::Channel* channel;
     system->playSound(sound, channelGroup, false, &channel);
     ShootingFinished = true;
@@ -371,12 +371,13 @@ int main()
     
     // Create the channel group.
     FMOD::ChannelGroup* channelGroup = nullptr;
-    result = system->createChannelGroup("inGameSoundEffects", &channelGroup);
-
+    result = system->createChannelGroup("Shooting", &channelGroup);
+   
+   
     
 
     vec3 saveLastPostion = camera.Position;
-    double should_start = 0;
+    bool should_move = true;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -430,6 +431,10 @@ int main()
             ShootingFinished = false;
             ShootingPlayback.detach();
         }
+        else if (!Shooting) {
+            channelGroup->stop();
+            
+        }
         system->update();
 
         // draw fps gun
@@ -441,6 +446,14 @@ int main()
         glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
         gunView = glm::rotate(gunView, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::mat4(1.0f);
+        if (Shooting && should_move) {
+            model = glm::translate(model, glm::vec3(0.0f, 0.1f, s_rand(0.0f, 1.0f)));
+            should_move = false;
+        }
+        else if (!should_move && Shooting) {
+            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.1f));
+            should_move = true;
+        }
         ourShader.setMat4("model", model);
         ourShader.setMat4("projection", projection);
         ourShader.setMat4("view", gunView);
