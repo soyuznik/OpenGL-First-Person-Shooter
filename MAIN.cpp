@@ -155,7 +155,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 // camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
@@ -172,6 +172,7 @@ bool ADS = false;
 
 int main()
 {
+#pragma region init
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -212,7 +213,8 @@ int main()
     // configure global opengl state
     // -----------------------------
     glEnable(GL_DEPTH_TEST);
-
+#pragma endregion Setting OpenGL State
+#pragma region Defining_data
     // build and compile our shader zprogram
     // ------------------------------------
     Shader ourShader("resources/shaders/7.4.camera.vs", "resources/shaders/7.4.camera.fs");
@@ -263,12 +265,24 @@ int main()
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
     };
+    // AABB collision
+    std::vector<vec3> points;
+    for (unsigned int a = 0; a < sizeof(vertices) / sizeof(vertices[0]); a = a + 5) {
+        points.push_back(vec3(vertices[a], vertices[a + 1], vertices[a + 2]));
+
+    }
+    AABB box(points[0], points[0]);
+    for (size_t i = 1; i < points.size(); i++)
+    {
+        box.UpdateMinMax(points[i]);
+    }
+
     //create box
-    unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
+    unsigned int VBO, boxVAO;
+    glGenVertexArrays(1, &boxVAO);
     glGenBuffers(1, &VBO);
 
-    glBindVertexArray(VAO);
+    glBindVertexArray(boxVAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -284,7 +298,97 @@ int main()
     //create gun
     Model gun("resources/m4a1.obj");
     
-    
+    //create plane
+    float planeVertices[] = {
+        // positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
+        // 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+       // -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+       // -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+       //  5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+       // -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+       //  5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+
+
+        -5.5f, -0.2f, -5.5f,  0.0f, 0.0f,
+         5.5f, -0.2f, -5.5f,  1.0f, 0.0f,
+         5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
+         5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
+        -5.5f,  0.0f, -5.5f,  0.0f, 1.0f,
+        -5.5f, -0.2f, -5.5f,  0.0f, 0.0f,
+
+        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+         5.5f, -0.2f,  5.5f,  1.0f, 0.0f,
+         5.5f,  0.0f,  5.5f,  1.0f, 1.0f,
+         5.5f,  0.0f,  5.5f,  1.0f, 1.0f,
+        -5.5f,  0.0f,  5.5f,  0.0f, 1.0f,
+        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+
+        -5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
+        -5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
+        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+        -5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
+
+         5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
+         5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
+         5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+         5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+         5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+         5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
+
+        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+         5.5f, -0.2f, -5.5f,  1.0f, 1.0f,
+         5.5f, -0.2f,  5.5f,  1.0f, 0.0f,
+         5.5f, -0.2f,  5.5f,  1.0f, 0.0f,
+        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+
+        -5.5f,  0.0f, -5.5f,  0.0f, 1.0f,
+         5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
+         5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
+         5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
+        -5.5f,  0.0f,  5.5f,  0.0f, 0.0f,
+        -5.5f,  0.0f, -5.5f,  0.0f, 1.0f
+    };
+
+    // AABB collision
+    std::vector<vec3> ppoints;
+    for (unsigned int a = 0; a < sizeof(planeVertices) / sizeof(planeVertices[0]); a = a + 5) {
+        ppoints.push_back(vec3(planeVertices[a], planeVertices[a + 1], planeVertices[a + 2]));
+
+    }
+    AABB plane(ppoints[0], ppoints[0]);
+    for (size_t i = 1; i < ppoints.size(); i++)
+    {
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.51f, 0.0f));
+        glm::vec4 point = (model * glm::vec4(ppoints[i].x, ppoints[i].y, ppoints[i].z, 1.0f));
+        plane.UpdateMinMax(glm::vec3(point.x , point.y , point.z));
+
+    }
+    //create box
+    unsigned int VBO1, planeVAO;
+    glGenVertexArrays(1, &planeVAO);
+    glGenBuffers(1, &VBO1);
+
+    glBindVertexArray(planeVAO);
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(planeVertices), planeVertices, GL_STATIC_DRAW);
+
+    // position attribute
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    // texture coord attribute
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+
+
+
+
+
     //load gun texture
     unsigned int texture1;
     // texture 1
@@ -339,6 +443,33 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data_);
+
+
+    //load box texture
+    unsigned int texture3;
+    // texture 1
+    // ---------
+    glGenTextures(1, &texture3);
+    glBindTexture(GL_TEXTURE_2D, texture3);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    unsigned char* data_1 = stbi_load("resources/textures/brickwall.jpg", &width, &height, &nrChannels, 0);
+    if (data_1)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_1);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data_1);
    
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
@@ -346,7 +477,8 @@ int main()
     ourShader.setInt("texture1", 0);
     ourShader.setInt("texture2", 1);
 
-
+#pragma endregion Defining_data
+#pragma region Load_Sounds
     //load sounds
     FMOD_RESULT result;
     FMOD::System* system;
@@ -372,7 +504,7 @@ int main()
     // Create the channel group.
     FMOD::ChannelGroup* channelGroup = nullptr;
     result = system->createChannelGroup("Shooting", &channelGroup);
-   
+#pragma endregion FMOD
    
     
 
@@ -388,12 +520,16 @@ int main()
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
-       // Sphere cameraSphere(camera.Position, 0.2f);
+        Sphere cameraSphere(camera.Position, 0.2f);
         
-     //   if (Intersect(cameraSphere , box)) {
-     //      camera.Position = saveLastPostion;
-    //    }
-    //    else saveLastPostion = camera.Position;
+        if (Intersect(cameraSphere , box)) {
+           camera.Position = saveLastPostion;
+
+        }
+        else if (Intersect(cameraSphere, plane)) {
+            camera.Position = saveLastPostion;
+        }
+        else saveLastPostion = camera.Position;
         // input
         // -----
         processInput(window);
@@ -424,8 +560,19 @@ int main()
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture2);
-        glBindVertexArray(VAO);
+        glBindVertexArray(boxVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+        //draw plane
+        model = glm::translate(glm::mat4(1.0f) , glm::vec3(0.0f , -0.51f , 0.0f));
+        ourShader.setMat4("model", model);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, texture3);
+        glBindVertexArray(planeVAO);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+
+        //update state
         if (Shooting && ShootingFinished) {
             std::thread ShootingPlayback(&playShooting, channelGroup, sound, system);
             ShootingFinished = false;
@@ -436,6 +583,7 @@ int main()
             
         }
         system->update();
+
 
         // draw fps gun
         // bind textures on corresponding texture units
