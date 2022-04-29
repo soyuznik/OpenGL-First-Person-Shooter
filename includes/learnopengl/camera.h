@@ -12,7 +12,8 @@ enum Camera_Movement {
     FORWARD,
     BACKWARD,
     LEFT,
-    RIGHT
+    RIGHT,
+    UP
 };
 
 // Default camera values
@@ -40,6 +41,7 @@ public:
     float MovementSpeed;
     float MouseSensitivity;
     float Zoom;
+    float Limit = 0.0f;
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -69,7 +71,8 @@ public:
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
-        float velocity = MovementSpeed * deltaTime;
+        Limit -= deltaTime / 10;
+        
         float frontSpeed = 1.0f;
         float rightSpeed = 1.0f;
 
@@ -77,30 +80,32 @@ public:
         glm::vec3 u_Right;
         glm::vec3 u_Back;
         glm::vec3 u_Left;
-        // 0.13f is a angular coefficent xd
+        // 0.15f is a angular coefficent xd
         if (direction == FORWARD) {
             frontSpeed = 15.0f;
             u_Front = glm::vec3(Front.x, 0.15f, Front.z);
             Position += u_Front * frontSpeed * deltaTime;
-            return;
         }
-        else if (direction == BACKWARD) {
+        if (direction == BACKWARD) {
             frontSpeed = -15.0f;
             u_Back = -glm::vec3(-Front.x, 0.15f, -Front.z);
             Position += u_Back * frontSpeed * deltaTime;
-            return;
         }
-        else if (direction == LEFT) {
+        if (direction == LEFT) {
             rightSpeed = -15.0f;
             u_Left = -glm::vec3(-Right.x, 0.15f, -Right.z);
             Position += u_Left * rightSpeed * deltaTime;
-            return;
         }
-        else if (direction == RIGHT) {
+        if (direction == RIGHT) {
             rightSpeed = 15.0f;
             u_Right = glm::vec3(Right.x, 0.15f, Right.z);
             Position += u_Right * rightSpeed * deltaTime;
-            return;
+        }
+        if (direction == UP) {
+            if (Limit < 0.5f) {
+                Position = glm::vec3(Position.x, Position.y + (0.01f * Limit), Position.z);
+                Limit += deltaTime;
+            }
         }
 
     }
