@@ -224,7 +224,7 @@ int main()
 #pragma region Defining_data
 	// build and compile our shader zprogram
 	// ------------------------------------
-	Shader ourShader("resources/shaders/7.4.camera.vs", "resources/shaders/7.4.camera.fs");
+	Shader ourShader("resources/shaders/7.4.camera_vertex.glsl", "resources/shaders/7.4.camera_frag.glsl");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -531,6 +531,33 @@ int main()
 	stbi_image_free(data_2);
 
 
+	//load plane texture
+	unsigned int texture5;
+	// texture 3
+	// ---------
+	glGenTextures(1, &texture5);
+	glBindTexture(GL_TEXTURE_2D, texture5);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data_3 = stbi_load("resources/crosshair.png", &width, &height, &nrChannels, 4);
+	if (data_3)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_3);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data_3);
+
+
 	
 
 
@@ -568,9 +595,19 @@ int main()
 	FMOD::Sound* deag_sound;
 	result = system->createSound("resources/desert_s.mp3", FMOD_DEFAULT, FMOD_DEFAULT, &deag_sound);
 
+	FMOD::Sound* mainmusic;
+	result = system->createSound("resources/music.mp3", FMOD_DEFAULT, FMOD_DEFAULT, &mainmusic);
+
 	// Create the channel group. ( easier management )
 	FMOD::ChannelGroup* channelGroup = nullptr;
 	result = system->createChannelGroup("Shooting", &channelGroup);
+
+	FMOD::ChannelGroup* musicGroup = nullptr;
+	result = system->createChannelGroup("Music", &musicGroup);
+
+
+	FMOD::Channel* mchannel;
+	system->playSound(mainmusic, musicGroup, false, &mchannel);
 #pragma endregion FMOD
 
 	// save Last Position where the camera didint collide anything
@@ -629,15 +666,36 @@ int main()
 		// activate shader
 		ourShader.use();
 
+		glm::mat4 projection = glm::mat4(1.0f);
+		ourShader.setMat4("projection", projection);
+		// camera/view transformation
+		glm::mat4 view = glm::mat4(1.0f);
+		ourShader.setMat4("view", view);
+
+		// CAST RAY TO 0,0,0
+		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		ourShader.setMat4("model", model);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, texture5);
+		glBindVertexArray(sqVAO);
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+
+
+
+
+
 		// pass projection matrix to shader (note that in this case it could change every frame)
-		glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		ourShader.setMat4("projection", projection);
 
 		// camera/view transformation
-		glm::mat4 view = camera.GetViewMatrix();
+		view = camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
 
-		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f, -0.0f, 11.0f));
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f, -0.0f, 11.0f));
 		ourShader.setMat4("model", model);
 
 		//draw box
