@@ -168,7 +168,8 @@ float lastFrame = 0.0f;
 bool Shooting = false;
 bool ADS = false;
 bool should_jump = false;
-
+bool display_gun = true;
+bool display_deagle = false;
 
 int main()
 {
@@ -297,6 +298,7 @@ int main()
 
     //create gun
     Model gun("resources/m4a1.obj");
+    Model deagle("resources/deagle.obj");
     
     //create plane
     float planeVertices[] = {
@@ -470,6 +472,35 @@ int main()
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data_1);
+
+
+
+    //load knife texture
+    //load box texture
+    unsigned int texture4;
+    // texture 1
+    // ---------
+    glGenTextures(1, &texture4);
+    glBindTexture(GL_TEXTURE_2D, texture4);
+    // set the texture wrapping parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    // set texture filtering parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // load image, create texture and generate mipmaps
+    stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+    unsigned char* data_2 = stbi_load("resources/gray.png", &width, &height, &nrChannels, 0);
+    if (data_2)
+    {
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_2);
+        glGenerateMipmap(GL_TEXTURE_2D);
+    }
+    else
+    {
+        std::cout << "Failed to load texture" << std::endl;
+    }
+    stbi_image_free(data_2);
    
     // tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
     // -------------------------------------------------------------------------------------------
@@ -539,16 +570,18 @@ int main()
         }
         if (Intersect(cameraSphere , box)) {
            camera.Position = saveLastPostion;
-
         }
         else if (Intersect(cameraSphere, plane)) {
             camera.Position = saveLastPostion;
-            
         }
         else saveLastPostion = camera.Position; 
         // input
         // -----
         processInput(window);
+
+
+
+
 
         // render
         // ------
@@ -588,42 +621,79 @@ int main()
         glBindVertexArray(planeVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
-        //update state
-        if (Shooting && ShootingFinished) {
-            std::thread ShootingPlayback(&playShooting, channelGroup, sound, system);
-            ShootingFinished = false;
-            ShootingPlayback.detach();
-        }
-        else if (!Shooting) {
-            channelGroup->stop();
-            
-        }
+        // update FMOD system
         system->update();
 
+        if (display_gun) {
+            //update state
+            if (Shooting && ShootingFinished) {
+                std::thread ShootingPlayback(&playShooting, channelGroup, sound, system);
+                ShootingFinished = false;
+                ShootingPlayback.detach();
+            }
+            else if (!Shooting) {
+                channelGroup->stop();
 
-        // draw fps gun
-        // bind textures on corresponding texture units
-        //glDisable(GL_DEPTH_TEST);
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture1);
-        glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
-        gunView = glm::rotate(gunView, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::mat4(1.0f);
-        if (Shooting && should_move) {
-            model = glm::translate(model, glm::vec3(0.0f, 0.1f, s_rand(0.0f, 1.0f)));
-            should_move = false;
-        }
-        else if (!should_move && Shooting) {
-            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.1f));
-            should_move = true;
-        }
-        ourShader.setMat4("model", model);
-        ourShader.setMat4("projection", projection);
-        ourShader.setMat4("view", gunView);
-        gun.Draw(ourShader);
-       
+            }
 
+            // draw fps gun
+            // bind textures on corresponding texture units
+            //glDisable(GL_DEPTH_TEST);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture1);
+            glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+            gunView = glm::rotate(gunView, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            model = glm::mat4(1.0f);
+            if (Shooting && should_move) {
+                model = glm::translate(model, glm::vec3(0.0f, 0.1f, s_rand(0.0f, 1.0f)));
+                should_move = false;
+            }
+            else if (!should_move && Shooting) {
+                model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.1f));
+                should_move = true;
+            }
+            ourShader.setMat4("model", model);
+            ourShader.setMat4("projection", projection);
+            ourShader.setMat4("view", gunView);
+            gun.Draw(ourShader);
+        }
+        else if (display_deagle) {
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, texture4);
+            glClear(GL_DEPTH_BUFFER_BIT);
+
+            /*
+            * 
+            *    SAVE FOR DEAGLE ADS
+            * 
+            glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+            model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::translate(model, glm::vec3(1.0f, 5.5f, 0.0f));
+
+            */
+
+
+
+            glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+            model = glm::mat4(1.0f);
+            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            model = glm::translate(model, glm::vec3(-1.0f ,4.5f, 0.0f));
+            //model = glm::translate(model,glm::vec3(0.0f, -1.6f, 0.9f));
+           // if (Shooting && should_move) {
+          //      model = glm::translate(model, glm::vec3(0.0f, 0.1f, s_rand(0.0f, 1.0f)));
+          //      should_move = false;
+          //  }
+          //  else if (!should_move && Shooting) {
+          //      model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.1f));
+          //      should_move = true;
+          //  }
+            ourShader.setMat4("model", model);
+            ourShader.setMat4("projection", projection);
+            ourShader.setMat4("view", gunView);
+            deagle.Draw(ourShader);
+        }
 
 
 
@@ -651,6 +721,14 @@ void processInput(GLFWwindow* window)
 {
     static bool should_play = true;
     double speed = 1.0;
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS) {
+        display_gun = true;
+        display_deagle = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS) {
+        display_gun = false;
+        display_deagle = true;
+    }
     if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
         speed = 5;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
