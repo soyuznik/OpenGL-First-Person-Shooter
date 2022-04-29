@@ -694,8 +694,14 @@ int main()
             model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
             model = glm::translate(model, glm::vec3(-1.0f ,4.5f, 0.0f));
             // SINGLE FIRE
+            if (ADS) {
+                glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+                model = glm::mat4(1.0f);
+                model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+                model = glm::translate(model, glm::vec3(1.0f, 5.5f, 0.0f));
+            }
             if (Shooting) {
-                model = glm::rotate(model, glm::radians(-15.0f) , glm::vec3(1.0f, 0.1f, 0.0f));
+                model = glm::rotate(model, glm::radians(-15.0f), glm::vec3(1.0f, 0.1f, 0.0f));
                 should_move = false;
             }
             ourShader.setMat4("model", model);
@@ -744,6 +750,12 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         should_jump = true;
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT)) {
+        ADS = true;
+    }
+    else {
+        ADS = false;
+    }
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)) {
         Shooting = true;
     }
