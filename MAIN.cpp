@@ -650,6 +650,12 @@ int main()
             gunView = glm::rotate(gunView, glm::radians(180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
             model = glm::mat4(1.0f);
             // AUTO FIRE
+            if (ADS) {
+                glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
+                gunView = glm::rotate(gunView, glm::radians(60.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, glm::vec3(2.0f, -2.5f, 0.0f));
+            }
             if (Shooting && should_move) {
                 model = glm::translate(model, glm::vec3(0.0f, 0.1f, s_rand(0.0f, 1.0f)));
                 should_move = false;
@@ -668,19 +674,8 @@ int main()
             glBindTexture(GL_TEXTURE_2D, texture4);
             glClear(GL_DEPTH_BUFFER_BIT);
 
-            /*
-            * 
-            *    SAVE FOR DEAGLE ADS
-            * 
-            glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
-            model = glm::mat4(1.0f);
-            model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            model = glm::translate(model, glm::vec3(1.0f, 5.5f, 0.0f));
-
-            */
 
             //update state
-
             if (Shooting && ShootingFinished && !shoot_cooldown) {
                 shoot_cooldown = true;
                 std::thread ShootingPlayback(&playShooting, channelGroup, deag_sound, system);
@@ -688,7 +683,6 @@ int main()
                 ShootingPlayback.detach();
             }
            
-            
             glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
             model = glm::mat4(1.0f);
             model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
