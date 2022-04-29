@@ -511,6 +511,7 @@ int main()
     vec3 saveLastPostion = camera.Position;
     bool should_move = true;
     bool should_fall = true;
+    float jump_cooldown = 0.0f;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -521,6 +522,17 @@ int main()
         float currentFrame = static_cast<float>(glfwGetTime());
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
+        if (camera.should_jump && jump_cooldown > 1.0f) {
+            jump_cooldown = 0.0f;
+            camera.should_jump = false;
+            camera.Position.y += 0.9f;
+        }
+        else {
+            jump_cooldown += deltaTime;
+        }
+
+
         Sphere cameraSphere(camera.Position, 0.2f);
         if (should_fall) {
             camera.Position = glm::vec3(camera.Position.x, camera.Position.y - 0.001f, camera.Position.z);

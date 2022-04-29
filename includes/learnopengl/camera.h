@@ -42,6 +42,7 @@ public:
     float MouseSensitivity;
     float Zoom;
     float Limit = 0.0f;
+    bool should_jump = false;
 
     // constructor with vectors
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
@@ -71,7 +72,7 @@ public:
     // processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
     void ProcessKeyboard(Camera_Movement direction, float deltaTime)
     {
-        Limit -= deltaTime / 10;
+        
         
         float frontSpeed = 1.0f;
         float rightSpeed = 1.0f;
@@ -102,10 +103,7 @@ public:
             Position += u_Right * rightSpeed * deltaTime;
         }
         if (direction == UP) {
-            if (Limit < 0.5f) {
-                Position = glm::vec3(Position.x, Position.y + (0.01f * Limit), Position.z);
-                Limit += deltaTime;
-            }
+            should_jump = true;
         }
 
     }
