@@ -364,10 +364,14 @@ int main()
     AABB plane(ppoints[0], ppoints[0]);
     for (size_t i = 1; i < ppoints.size(); i++)
     {
-        glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -0.51f, 0.0f));
-        glm::vec4 point = (model * glm::vec4(ppoints[i].x, ppoints[i].y, ppoints[i].z, 1.0f));
-        plane.UpdateMinMax(glm::vec3(point.x , point.y , point.z));
-
+        for (int i = 1; i < 36; i++) {
+            for (int j = 1; j < 36; j++) {
+                glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f * i, -0.51f, 11.0f * j));
+                glm::vec4 point = (model * glm::vec4(ppoints[i].x, ppoints[i].y, ppoints[i].z, 1.0f));
+                plane.UpdateMinMax(glm::vec3(point.x, point.y, point.z));
+               
+            }
+        }
     }
     //create box
     unsigned int VBO1, planeVAO;
@@ -617,13 +621,17 @@ int main()
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-        //draw plane
-        model = glm::translate(glm::mat4(1.0f) , glm::vec3(0.0f , -0.51f , 0.0f));
-        ourShader.setMat4("model", model);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture3);
-        glBindVertexArray(planeVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+        //draw plane 36 x 36 small planes
+        for (int i = 1; i < 36; i++) {
+            for (int j = 1; j < 36; j++) {
+                model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f * i, -0.51f, 11.0f * j));
+                ourShader.setMat4("model", model);
+                glActiveTexture(GL_TEXTURE0);
+                glBindTexture(GL_TEXTURE_2D, texture3);
+                glBindVertexArray(planeVAO);
+                glDrawArrays(GL_TRIANGLES, 0, 36);
+            }
+        }
 
         // update FMOD system
         system->update();
