@@ -84,22 +84,22 @@ public:
         // 0.15f is a angular coefficent xd
         if (direction == FORWARD) {
             frontSpeed = 15.0f;
-            u_Front = glm::vec3(Front.x, 0.15f, Front.z);
+            u_Front = glm::vec3(Front.x, 0.01f, Front.z);
             Position += u_Front * frontSpeed * deltaTime;
         }
         if (direction == BACKWARD) {
             frontSpeed = -15.0f;
-            u_Back = -glm::vec3(-Front.x, 0.15f, -Front.z);
+            u_Back = -glm::vec3(-Front.x, 0.01f, -Front.z);
             Position += u_Back * frontSpeed * deltaTime;
         }
         if (direction == LEFT) {
             rightSpeed = -15.0f;
-            u_Left = -glm::vec3(-Right.x, 0.15f, -Right.z);
+            u_Left = -glm::vec3(-Right.x, 0.01f, -Right.z);
             Position += u_Left * rightSpeed * deltaTime;
         }
         if (direction == RIGHT) {
             rightSpeed = 15.0f;
-            u_Right = glm::vec3(Right.x, 0.15f, Right.z);
+            u_Right = glm::vec3(Right.x, 0.01f, Right.z);
             Position += u_Right * rightSpeed * deltaTime;
         }
         if (direction == UP) {

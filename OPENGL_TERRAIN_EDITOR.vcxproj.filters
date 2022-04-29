@@ -32,10 +32,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\7.4.camera.fs">
+    <None Include="resources\shaders\7.4.camera_frag.glsl">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="resources\shaders\7.4.camera.vs">
+    <None Include="resources\shaders\7.4.camera_vertex.glsl">
       <Filter>Shaders</Filter>
     </None>
   </ItemGroup>

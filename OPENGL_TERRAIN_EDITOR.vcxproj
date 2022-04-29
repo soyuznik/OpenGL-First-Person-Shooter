@@ -159,8 +159,8 @@
     <ClInclude Include="includes\learnopengl\model.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="resources\shaders\7.4.camera.fs" />
-    <None Include="resources\shaders\7.4.camera.vs" />
+    <None Include="resources\shaders\7.4.camera_frag.glsl" />
+    <None Include="resources\shaders\7.4.camera_vertex.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

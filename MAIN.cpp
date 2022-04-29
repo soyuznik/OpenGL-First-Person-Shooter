@@ -154,8 +154,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow* window);
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
 
 // camera
 Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
@@ -357,6 +357,9 @@ int main()
 		-5.5f,  0.0f, -5.5f,  0.0f, 1.0f
 	};
 
+
+
+
 	// AABB collision
 	std::vector<vec3> ppoints;
 	for (unsigned int a = 0; a < sizeof(planeVertices) / sizeof(planeVertices[0]); a = a + 5) {
@@ -389,6 +392,36 @@ int main()
 	// texture coord attribute
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
+
+
+	//square to draw shoot effect
+	float sqVertices[] = {
+		 -0.5f, -0.5f,     0.0f,    0.0f,  0.0f,
+		  0.5f, -0.5f,     0.0f,    1.0f,  0.0f,
+		  0.5f,  0.5f,     0.0f,    1.0f,  1.0f,
+		  0.5f,  0.5f,     0.0f,    1.0f,  1.0f,
+		 -0.5f,  0.5f,     0.0f,    0.0f,  1.0f,
+		 -0.5f, -0.5f,     0.0f,    0.0f,  0.0
+	};
+	//create square
+	unsigned int VBO2, sqVAO;
+	glGenVertexArrays(1, &sqVAO);
+	glGenBuffers(1, &VBO2);
+	glBindVertexArray(sqVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(sqVertices), sqVertices, GL_STATIC_DRAW);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// texture coord attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+
+
+
+
+
 
 	//load gun texture
 	unsigned int texture1;
@@ -469,6 +502,39 @@ int main()
 	}
 	stbi_image_free(data_1);
 
+
+
+	//load plane texture
+	unsigned int texture4;
+	// texture 3
+	// ---------
+	glGenTextures(1, &texture4);
+	glBindTexture(GL_TEXTURE_2D, texture4);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data_2 = stbi_load("resources/shoot_eff_.png", &width, &height, &nrChannels, 4);
+	if (data_2)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_2);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data_2);
+
+
+	
+
+
+
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
 	ourShader.use();
@@ -540,7 +606,7 @@ int main()
 		// Create a sphere as the camera , because if it would be a point it would get a little bit inside objects
 		Sphere cameraSphere(camera.Position, 0.2f);
 		if (should_fall) { // gravity
-			camera.Position = glm::vec3(camera.Position.x, camera.Position.y - 0.001f, camera.Position.z);
+			camera.Position = glm::vec3(camera.Position.x, camera.Position.y - 0.002f, camera.Position.z);
 		}
 		if (Intersect(cameraSphere, box)) { // check intersection with boxes
 			camera.Position = saveLastPostion;
@@ -594,6 +660,50 @@ int main()
 
 		// update FMOD system
 		system->update();
+
+		//check if should apply effect.
+		glClear(GL_DEPTH_BUFFER_BIT);
+		if (Shooting && ADS && display_deagle) {
+			//glEnable(GL_BLEND);
+			//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			// pass projection matrix to shader 
+			glm::mat4 projection = glm::mat4(1.0f);
+			ourShader.setMat4("projection", projection);
+			// camera/view transformation
+			glm::mat4 view = glm::mat4(1.0f);
+			ourShader.setMat4("view", view);
+
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+			ourShader.setMat4("model", model);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture4);
+			glBindVertexArray(sqVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glDisable(GL_BLEND);
+		}
+		if (Shooting && !ADS && display_deagle) {
+			//glEnable(GL_BLEND);
+			//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+			// pass projection matrix to shader 
+			glm::mat4 projection = glm::mat4(1.0f);
+			ourShader.setMat4("projection", projection);
+			// camera/view transformation
+			glm::mat4 view = glm::mat4(1.0f);
+			ourShader.setMat4("view", view);
+
+			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.241f, 0.3f, 0.4f));
+			ourShader.setMat4("model", model);
+
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture4);
+			glBindVertexArray(sqVAO);
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+			glDisable(GL_BLEND);
+		}
+
+
+
 
 		//check which gun to dispaly
 		if (display_gun) {
