@@ -120,9 +120,9 @@ float s_rand(float _min, float _max)
 
 bool ShootingFinished = true;
 void playShooting(FMOD::ChannelGroup* channelGroup , FMOD::Sound* sound , FMOD::System* system) {
-    Sleep(110);
     FMOD::Channel* channel;
     system->playSound(sound, channelGroup, false, &channel);
+    Sleep(110);
     ShootingFinished = true;
 }
 
@@ -167,7 +167,7 @@ float lastFrame = 0.0f;
 
 bool Shooting = false;
 bool ADS = false;
-
+bool should_jump = false;
 
 
 int main()
@@ -310,40 +310,40 @@ int main()
        //  5.0f, -0.5f, -5.0f,  2.0f, 2.0f
 
 
-        -5.5f, -0.2f, -5.5f,  0.0f, 0.0f,
-         5.5f, -0.2f, -5.5f,  1.0f, 0.0f,
+        -5.5f, -0.1f, -5.5f,  0.0f, 0.0f,
+         5.5f, -0.1f, -5.5f,  1.0f, 0.0f,
          5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
          5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
         -5.5f,  0.0f, -5.5f,  0.0f, 1.0f,
         -5.5f, -0.2f, -5.5f,  0.0f, 0.0f,
 
-        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
-         5.5f, -0.2f,  5.5f,  1.0f, 0.0f,
+        -5.5f, -0.1f,  5.5f,  0.0f, 0.0f,
+         5.5f, -0.1f,  5.5f,  1.0f, 0.0f,
          5.5f,  0.0f,  5.5f,  1.0f, 1.0f,
          5.5f,  0.0f,  5.5f,  1.0f, 1.0f,
         -5.5f,  0.0f,  5.5f,  0.0f, 1.0f,
-        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+        -5.5f, -0.1f,  5.5f,  0.0f, 0.0f,
 
         -5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
         -5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
-        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
-        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
-        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+        -5.5f, -0.1f, -5.5f,  0.0f, 1.0f,
+        -5.5f, -0.1f, -5.5f,  0.0f, 1.0f,
+        -5.5f, -0.1f,  5.5f,  0.0f, 0.0f,
         -5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
 
          5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
          5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
-         5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
-         5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
-         5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
+         5.5f, -0.1f, -5.5f,  0.0f, 1.0f,
+         5.5f, -0.1f, -5.5f,  0.0f, 1.0f,
+         5.5f, -0.1f,  5.5f,  0.0f, 0.0f,
          5.5f,  0.0f,  5.5f,  1.0f, 0.0f,
 
-        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
-         5.5f, -0.2f, -5.5f,  1.0f, 1.0f,
-         5.5f, -0.2f,  5.5f,  1.0f, 0.0f,
-         5.5f, -0.2f,  5.5f,  1.0f, 0.0f,
-        -5.5f, -0.2f,  5.5f,  0.0f, 0.0f,
-        -5.5f, -0.2f, -5.5f,  0.0f, 1.0f,
+        -5.5f, -0.1f, -5.5f,  0.0f, 1.0f,
+         5.5f, -0.1f, -5.5f,  1.0f, 1.0f,
+         5.5f, -0.1f,  5.5f,  1.0f, 0.0f,
+         5.5f, -0.1f,  5.5f,  1.0f, 0.0f,
+        -5.5f, -0.1f,  5.5f,  0.0f, 0.0f,
+        -5.5f, -0.1f, -5.5f,  0.0f, 1.0f,
 
         -5.5f,  0.0f, -5.5f,  0.0f, 1.0f,
          5.5f,  0.0f, -5.5f,  1.0f, 1.0f,
@@ -510,6 +510,7 @@ int main()
 
     vec3 saveLastPostion = camera.Position;
     bool should_move = true;
+    bool should_fall = true;
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -521,15 +522,18 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         Sphere cameraSphere(camera.Position, 0.2f);
-        
+        if (should_fall) {
+            camera.Position = glm::vec3(camera.Position.x, camera.Position.y - 0.001f, camera.Position.z);
+        }
         if (Intersect(cameraSphere , box)) {
            camera.Position = saveLastPostion;
 
         }
         else if (Intersect(cameraSphere, plane)) {
             camera.Position = saveLastPostion;
+            
         }
-        else saveLastPostion = camera.Position;
+        else saveLastPostion = camera.Position; 
         // input
         // -----
         processInput(window);
@@ -639,6 +643,8 @@ void processInput(GLFWwindow* window)
         speed = 5;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        should_jump = true;
     if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)) {
         Shooting = true;
     }
