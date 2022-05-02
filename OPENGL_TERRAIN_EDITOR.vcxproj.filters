@@ -30,6 +30,7 @@
     <ClInclude Include="includes\learnopengl\model.h">
       <Filter>Base</Filter>
     </ClInclude>
+    <ClInclude Include="utility.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\7.4.camera_frag.glsl">
