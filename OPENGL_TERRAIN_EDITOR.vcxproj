@@ -159,6 +159,8 @@
     <ClInclude Include="includes\learnopengl\model.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="resources\shaders\1.model_frag.glsl" />
+    <None Include="resources\shaders\1.model_vertex.glsl" />
     <None Include="resources\shaders\7.4.camera_frag.glsl" />
     <None Include="resources\shaders\7.4.camera_vertex.glsl" />
   </ItemGroup>

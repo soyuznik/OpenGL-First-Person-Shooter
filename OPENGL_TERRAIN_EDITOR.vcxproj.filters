@@ -38,5 +38,11 @@
     <None Include="resources\shaders\7.4.camera_vertex.glsl">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="resources\shaders\1.model_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\1.model_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

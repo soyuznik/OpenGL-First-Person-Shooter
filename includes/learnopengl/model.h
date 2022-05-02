@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 using namespace std;
-
+unsigned int LoadTexture(const char* path);
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false);
 
 class Model
@@ -31,16 +31,19 @@ public:
 	vector<Mesh>    meshes;
 	string directory;
 	bool gammaCorrection;
-
+	string TEXTURE_PATH;
 	// constructor, expects a filepath to a 3D model.
-	Model(string const& path, bool gamma = false) : gammaCorrection(gamma)
+	Model(string const& path, string __TEXTURE_PATH , bool gamma = false) : gammaCorrection(gamma)
 	{
+		TEXTURE_PATH = __TEXTURE_PATH;
 		loadModel(path);
 	}
 
 	// draws the model, and thus all its meshes
 	void Draw(Shader& shader)
 	{
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D , textures_loaded[0].id);
 		for (unsigned int i = 0; i < meshes.size(); i++)
 			meshes[i].Draw(shader);
 	}
@@ -94,7 +97,8 @@ private:
 		for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 		{
 			Vertex vertex;
-			glm::vec3 vector; // we declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+			glm::vec3 vector; // we declare a placeholder vector since assimp uses its 
+			//own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
 			// positions
 			vector.x = mesh->mVertices[i].x;
 			vector.y = mesh->mVertices[i].y;
@@ -151,17 +155,14 @@ private:
 		// normal: texture_normalN
 
 		// 1. diffuse maps
-		vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
-		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-		// 2. specular maps
-		vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
-		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-		// 3. normal maps
-		std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
-		textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
-		// 4. height maps
-		std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
-		textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+		Texture mainTexture;
+		mainTexture.id = LoadTexture(TEXTURE_PATH.c_str());
+		mainTexture.path = TEXTURE_PATH.c_str();
+		mainTexture.type = "texture_diffuse";
+		vector<Texture> diffuseMaps;
+		textures_loaded.push_back(mainTexture);
+		//textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+		
 
 		// return a mesh object created from the extracted mesh data
 		return Mesh(vertices, indices, textures);
@@ -200,7 +201,43 @@ private:
 		return textures;
 	}
 };
+unsigned int LoadTexture(const char* path)
+{
+	string filename = string(path);
+	unsigned int textureID;
+	glGenTextures(1, &textureID);
 
+	int width, height, nrComponents;
+	unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
+	if (data)
+	{
+		GLenum format;
+		if (nrComponents == 1)
+			format = GL_RED;
+		else if (nrComponents == 3)
+			format = GL_RGB;
+		else if (nrComponents == 4)
+			format = GL_RGBA;
+
+		glBindTexture(GL_TEXTURE_2D, textureID);
+		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		stbi_image_free(data);
+	}
+	else
+	{
+		std::cout << "Texture failed to load at path: " << path << std::endl;
+		stbi_image_free(data);
+	}
+
+	return textureID;
+}
 unsigned int TextureFromFile(const char* path, const string& directory, bool gamma)
 {
 	string filename = string(path);

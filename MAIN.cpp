@@ -225,6 +225,7 @@ int main()
 	// build and compile our shader zprogram
 	// ------------------------------------
 	Shader ourShader("resources/shaders/7.4.camera_vertex.glsl", "resources/shaders/7.4.camera_frag.glsl");
+	Shader modelShader("resources/shaders/1.model_vertex.glsl", "resources/shaders/1.model_frag.glsl");
 
 	// set up vertex data (and buffer(s)) and configure vertex attributes
 	// ------------------------------------------------------------------
@@ -281,7 +282,6 @@ int main()
 	{
 		box.UpdateMinMax(points[i]);
 	}
-
 	//create box
 	unsigned int VBO, boxVAO;
 	glGenVertexArrays(1, &boxVAO);
@@ -300,8 +300,14 @@ int main()
 	glEnableVertexAttribArray(1);
 
 	//create gun
-	Model gun("resources/m4a1.obj");
-	Model deagle("resources/deagle.obj");
+	Model gun("resources/m4a1.obj" , "resources/gray.png");
+	Model deagle("resources/deagle.obj" , "resources/gray.png");
+
+
+	//create building
+	Model cottage("resources/models/cottage.obj" , "resources/models/cottage.png");
+	Model church("resources/models/untitled.obj", "resources/models/church.jpg");
+
 
 	//create plane
 	float planeVertices[] = {
@@ -504,7 +510,7 @@ int main()
 
 
 
-	//load plane texture
+	//load explosion texture
 	unsigned int texture4;
 	// texture 3
 	// ---------
@@ -531,7 +537,7 @@ int main()
 	stbi_image_free(data_2);
 
 
-	//load plane texture
+	//load crosshair texture
 	unsigned int texture5;
 	// texture 3
 	// ---------
@@ -558,7 +564,9 @@ int main()
 	stbi_image_free(data_3);
 
 
+
 	
+
 
 
 
@@ -607,7 +615,7 @@ int main()
 
 
 	FMOD::Channel* mchannel;
-	system->playSound(mainmusic, musicGroup, false, &mchannel);
+	//system->playSound(mainmusic, musicGroup, false, &mchannel);
 #pragma endregion FMOD
 
 	// save Last Position where the camera didint collide anything
@@ -665,7 +673,9 @@ int main()
 
 		// activate shader
 		ourShader.use();
-
+		
+		
+		//draw crosshair
 		glm::mat4 projection = glm::mat4(1.0f);
 		ourShader.setMat4("projection", projection);
 		// camera/view transformation
@@ -674,7 +684,7 @@ int main()
 
 		// CAST RAY TO 0,0,0
 		glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-		model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
+		model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
 		ourShader.setMat4("model", model);
 
 		glActiveTexture(GL_TEXTURE0);
@@ -685,8 +695,44 @@ int main()
 
 
 
+		/*
+		-
+		 -          USE MODEL SHADER FOR RENDERING MODELS
+		-
+		*/
+
+		modelShader.use();
+		
+		// pass projection matrix to shader (note that in this case it could change every frame)
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		modelShader.setMat4("projection", projection);
+
+		// camera/view transformation
+		view = camera.GetViewMatrix();
+		modelShader.setMat4("view", view);
+
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.0f, 20.0f));
+		model = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+		modelShader.setMat4("model", model);
+		cottage.Draw(modelShader);
 
 
+
+
+		
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(50.0f, 6.5f, 20.0f));
+		model = glm::rotate(model, glm::radians(10.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
+		//rot = glm::rotate(rot, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		
+		modelShader.setMat4("model", model);
+
+		church.Draw(modelShader);
+
+
+		// back to old shader
+
+		ourShader.use();
 		// pass projection matrix to shader (note that in this case it could change every frame)
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		ourShader.setMat4("projection", projection);
@@ -695,14 +741,9 @@ int main()
 		view = camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
 
-		model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f, -0.0f, 11.0f));
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.0f, 20.0f));
+		model = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
 		ourShader.setMat4("model", model);
-
-		//draw box
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture2);
-		glBindVertexArray(boxVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 		//draw plane 36 x 36 small planes
 		for (int i = 1; i < 36; i++) {
@@ -721,8 +762,9 @@ int main()
 
 		//check if should apply effect.
 		glClear(GL_DEPTH_BUFFER_BIT);
+		
 		if (Shooting && ADS && display_deagle) {
-			//glEnable(GL_BLEND);
+			glEnable(GL_BLEND);
 			//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			// pass projection matrix to shader 
 			glm::mat4 projection = glm::mat4(1.0f);
@@ -741,7 +783,7 @@ int main()
 			glDisable(GL_BLEND);
 		}
 		if (Shooting && !ADS && display_deagle) {
-			//glEnable(GL_BLEND);
+			glEnable(GL_BLEND);
 			//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			// pass projection matrix to shader 
 			glm::mat4 projection = glm::mat4(1.0f);
