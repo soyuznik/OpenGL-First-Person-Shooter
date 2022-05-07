@@ -156,8 +156,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="includes\learnopengl\model.h" />
     <ClInclude Include="utility.h" />
+    <ClInclude Include="includes\learnopengl\model.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\1.model_frag.glsl" />

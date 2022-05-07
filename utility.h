@@ -1,123 +1,85 @@
 #pragma once
+
+#include <iostream>
 // Including glad to setup OpenGL , GLFW to create the context (window) , and Stb_image to read image/texture files
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <stb_image.h>
 
-// GLM is a library for Opengl math
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-// Some Code samples from learnopengl.com , modified by me.
-#include <learnopengl/shader_m.h>
-#include <learnopengl/camera.h>
-#include <learnopengl/model.h>
-
-// iostream for utility like std::cout
-#include <iostream>
-
-// FMOD is a C++ sound playing library (www.fmod.com)
-#include <FMOD/fmod.h>
-#include <FMOD/fmod_studio.hpp>
-#include <FMOD/fmod_errors.h>
-
-// random for random gun movement , etc.
-#include <random>
-// std::thread for sound playing , we need it async
-#include <thread>
-
-// utility function for loading a 2D texture from file
-// ---------------------------------------------------
-inline unsigned int loadTexture(char const* path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
-
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // for this tutorial: use GL_CLAMP_TO_EDGE to prevent semi-transparent borders. Due to interpolation it takes texels from next repeat 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
+// GL_LINEAR , GL_REPEAT , RGB/RGB
+unsigned int loadTextureX(std::string path) {
+	//load gun texture
+	unsigned int texture1;
+	// texture 1
+	// ---------
+	glGenTextures(1, &texture1);
+	glBindTexture(GL_TEXTURE_2D, texture1);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+	return texture1;
+}
+// GL_REPEAT , GL_LINEAR , RGBA/RGBA
+unsigned int loadTextureY(std::string path) {
+	int width, height, nrChannels;
+	//load explosion texture
+	unsigned int texture4;
+	// texture 3
+	// ---------
+	glGenTextures(1, &texture4);
+	glBindTexture(GL_TEXTURE_2D, texture4);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	unsigned char* data_2 = stbi_load(path.c_str(), &width, &height, &nrChannels, 4);
+	if (data_2)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data_2);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data_2);
+	return texture4;
 }
 
-bool ShootingFinished;
-class Sound {
-public:
-    //load sounds
-    FMOD_RESULT result;
-    FMOD::System* fmodsystem;
-    Sound();
-    FMOD::Sound* createSound(std::string path);
-    FMOD::ChannelGroup* __main = nullptr;
-    void update();
-    void stop();
-    void play(FMOD::Sound* sound);
-
-};
-void Thread__play(FMOD::ChannelGroup* channelGroup, FMOD::Sound* sound, FMOD::System* system) {
-    FMOD::Channel* channel;
-    system->playSound(sound, channelGroup, false, &channel);
-    Sleep(110);
-    ShootingFinished = true;
-}
-void Sound::play(FMOD::Sound* sound) {
-    std::thread ShootingPlayback(&Thread__play, __main, sound, fmodsystem);
-    ShootingFinished = false;
-    ShootingPlayback.detach();
-}
-void Sound::stop() {
-    __main->stop();
-}
-void Sound::update() {
-    fmodsystem->update();
-}
-Sound::Sound() {
-    fmodsystem->createChannelGroup("General", &__main);
-    result = FMOD::System_Create(&fmodsystem);		// Create the main system object.
-    if (result != FMOD_OK)
-    {
-        printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
-        exit(-1);
-    }
-
-    result = fmodsystem->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
-
-    if (result != FMOD_OK)
-    {
-        printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
-        exit(-1);
-    }
-
-}
-FMOD::Sound* Sound::createSound(std::string path) {
-    // create FMOD sounds
-    FMOD::Sound* sound;
-    fmodsystem->createSound(path.c_str(), FMOD_DEFAULT, FMOD_DEFAULT, &sound);
-    return sound;
+unsigned int create_VAO(float vertices[]) {
+	//create box
+	unsigned int VBO1, planeVAO;
+	glGenVertexArrays(1, &planeVAO);
+	glGenBuffers(1, &VBO1);
+	glBindVertexArray(planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// texture coord attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	return planeVAO;
 }

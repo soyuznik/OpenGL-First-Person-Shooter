@@ -1,5 +1,31 @@
 ﻿
+
+// GLM is a library for Opengl math
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+// Some Code samples from learnopengl.com , modified by me.
+#include <learnopengl/shader_m.h>
+#include <learnopengl/camera.h>
+#include <learnopengl/model.h>
+
+// iostream for utility like std::cout
+#include <iostream>
+
+// FMOD is a C++ sound playing library (www.fmod.com)
+#include <FMOD/fmod.h>
+#include <FMOD/fmod_studio.hpp>
+#include <FMOD/fmod_errors.h>
+
+// random for random gun movement , etc.
+#include <random>
+// std::thread for sound playing , we need it async
+#include <thread>
+
 #include "utility.h"
+
+
 
 
 // some namespace using to write things easier
@@ -99,6 +125,22 @@ float s_rand(float _min, float _max)
 {
 	std::uniform_real_distribution<float> randomNum(_min, _max);
 	return randomNum(std::mt19937(time(NULL)));
+}
+
+///////////////////////////// Sound /////////////////////////////////////////
+
+bool ShootingFinished = true;
+/// <summary>
+///  Play sound
+/// </summary>
+/// <param name="channelGroup"> just the channel group</param>
+/// <param name="sound"> the FMOD::Sound u want to play</param>
+/// <param name="system"> the FMOD::System</param>
+void playShooting(FMOD::ChannelGroup* channelGroup, FMOD::Sound* sound, FMOD::System* system) {
+	FMOD::Channel* channel;
+	system->playSound(sound, channelGroup, false, &channel);
+	Sleep(110);
+	ShootingFinished = true;
 }
 
 /// <summary>
@@ -385,75 +427,28 @@ int main()
 
 
 
-	float transparentVertices[] = {
-		// positions         // texture Coords (swapped y coordinates because texture is flipped upside down)
-		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-		0.0f, -0.5f,  0.0f,  0.0f,  1.0f,
-		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
 
-		0.0f,  0.5f,  0.0f,  0.0f,  0.0f,
-		1.0f, -0.5f,  0.0f,  1.0f,  1.0f,
-		1.0f,  0.5f,  0.0f,  1.0f,  0.0f
-	};
-	//create vertical square
-	unsigned int VBO3, sqVAO1;
-	glGenVertexArrays(1, &sqVAO1);
-	glGenBuffers(1, &VBO3);
-	glBindVertexArray(sqVAO1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO3);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(transparentVertices), transparentVertices, GL_STATIC_DRAW);
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+
 
 
 	//load gun texture
-	unsigned int texture1 = loadTexture("resources/gray.png");
+	unsigned int texture1 = loadTextureX("resources/gray.png");
 	//load box texture
-	unsigned int texture2 = loadTexture("resources/textures/container.jpg");
-
-	// load asphalt texture
-#pragma region -------
-	int width, height, nrChannels;
+	unsigned int texture2 = loadTextureX("resources/textures/container.jpg");
 	//load plane texture
-	unsigned int texture3;
-	// texture 3
-	// ---------
-	glGenTextures(1, &texture3);
-	glBindTexture(GL_TEXTURE_2D, texture3);
-	// set the texture wrapping parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// stop flickering
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// load image, create texture and generate mipmaps
-	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
-	unsigned char* data_1 = stbi_load("resources/textures/asphalt.png", &width, &height, &nrChannels, 0);
-	if (data_1)
-	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data_1);
-		glGenerateMipmap(GL_TEXTURE_2D);
-	}
-	else
-	{
-		std::cout << "Failed to load texture" << std::endl;
-	}
-	stbi_image_free(data_1);
-#pragma endregion unsigned int texture3;
-
+	unsigned int texture3 = loadTextureX("resources/textures/brickwall.jpg");
 	//load explosion texture
-	unsigned int texture4 = loadTexture("resources/shoot_eff_.png");
+	unsigned int texture4 = loadTextureY("resources/shoot_eff_.png");
 	//load crosshair texture
-	unsigned int texture5 = loadTexture("resources/crosshair.png");
-	//load crosshair texture
-	unsigned int texture6 = loadTexture("resources/textures/grass.png");
+	unsigned int texture5 = loadTextureY("resources/crosshair.png");
+
+
+
+	
+
+
+
+
 	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
 	// -------------------------------------------------------------------------------------------
 	ourShader.use();
@@ -461,14 +456,47 @@ int main()
 	ourShader.setInt("texture2", 1);
 
 #pragma endregion Defining_data
+#pragma region Load_Sounds
+	//load sounds
+	FMOD_RESULT result;
+	FMOD::System* system;
 
-	Sound sound;
+	result = FMOD::System_Create(&system);		// Create the main system object.
+	if (result != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+		exit(-1);
+	}
+
+	result = system->init(100, FMOD_INIT_NORMAL, 0);	// Initialize FMOD.
+
+	if (result != FMOD_OK)
+	{
+		printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result));
+		exit(-1);
+	}
 	// create FMOD sounds
-	FMOD::Sound* m4_sound = sound.createSound("resources/m4a1_ff.mp3");		
-	FMOD::Sound* deag_sound = sound.createSound("resources/desert_s.mp3");
-	FMOD::Sound* mainmusic = sound.createSound("resources/music.mp3");
+	FMOD::Sound* m4_sound;
+	result = system->createSound("resources/m4a1_ff.mp3", FMOD_DEFAULT, FMOD_DEFAULT, &m4_sound);		// FMOD_DEFAULT uses the defaults.  These are the same as FMOD_LOOP_OFF | FMOD_2D | FMOD_HARDWARE.
 
-	sound.play(mainmusic);
+	FMOD::Sound* deag_sound;
+	result = system->createSound("resources/desert_s.mp3", FMOD_DEFAULT, FMOD_DEFAULT, &deag_sound);
+
+	FMOD::Sound* mainmusic;
+	result = system->createSound("resources/music.mp3", FMOD_DEFAULT, FMOD_DEFAULT, &mainmusic);
+
+	// Create the channel group. ( easier management )
+	FMOD::ChannelGroup* channelGroup = nullptr;
+	result = system->createChannelGroup("Shooting", &channelGroup);
+
+	FMOD::ChannelGroup* musicGroup = nullptr;
+	result = system->createChannelGroup("Music", &musicGroup);
+
+
+	FMOD::Channel* mchannel;
+	//system->playSound(mainmusic, musicGroup, false, &mchannel);
+#pragma endregion FMOD
+
 	// save Last Position where the camera didint collide anything
 	vec3 saveLastPostion = camera.Position;
 
@@ -562,23 +590,21 @@ int main()
 		view = camera.GetViewMatrix();
 		modelShader.setMat4("view", view);
 
-		for (int i = 0; i < 18; i++) {
-			for (int j = 0; j < 18; j++) {
-				model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f * i, -0.5f, 20.0f * j));
-				model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));
-				model = glm::rotate(model, glm::radians(100.0f) , glm::vec3(i/10, 0.2f, j/10));
-				modelShader.setMat4("model", model);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, texture6);
-				glBindVertexArray(sqVAO1);
-				glDrawArrays(GL_TRIANGLES, 0, 6);
-				model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f * i, -0.5f, 20.0f * j));
-				model = glm::scale(model, glm::vec3(0.2f, 0.2f, 0.2f));
-				model = glm::rotate(model, glm::radians(100.0f), glm::vec3(i / 10, 0.2f, j / 10));
-				modelShader.setMat4("model", model);
-				cottage.Draw(modelShader);
-			}
-		}
+		model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.0f, 20.0f));
+		model = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
+		modelShader.setMat4("model", model);
+		cottage.Draw(modelShader);
+
+
+		// pass projection matrix to shader (note that in this case it could change every frame)
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+		modelShader.setMat4("projection", projection);
+
+		// camera/view transformation
+		view = camera.GetViewMatrix();
+		modelShader.setMat4("view", view);
+
+		//model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.5f, 20.0f));
 
 
 
@@ -622,7 +648,7 @@ int main()
 		}
 
 		// update FMOD system
-		sound.update();
+		system->update();
 
 		//check if should apply effect.
 		glClear(GL_DEPTH_BUFFER_BIT);
@@ -673,10 +699,12 @@ int main()
 		if (display_gun) {
 			//update state
 			if (Shooting && ShootingFinished) {
-				sound.play(m4_sound);
+				std::thread ShootingPlayback(&playShooting, channelGroup, m4_sound, system);
+				ShootingFinished = false;
+				ShootingPlayback.detach();
 			}
 			else if (!Shooting) {
-				sound.stop();
+				channelGroup->stop();
 			}
 
 			// draw fps gun
@@ -721,8 +749,10 @@ int main()
 			//update state
 			// the deagle has SINGLE fire so it should fire just when clicked
 			if (Shooting && ShootingFinished && !shoot_cooldown) {
-				sound.play(deag_sound);
 				shoot_cooldown = true;
+				std::thread ShootingPlayback(&playShooting, channelGroup, deag_sound, system);
+				ShootingFinished = false;
+				ShootingPlayback.detach();
 			}
 			// move gun in the right corener
 			glm::mat4 gunView = glm::lookAt(glm::vec3{ 0 }, glm::vec3{ 0, 0, -1 }, glm::vec3{ 0, 1, 0 });
