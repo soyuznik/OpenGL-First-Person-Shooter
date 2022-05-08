@@ -35,6 +35,7 @@ using glm::vec2;
 using std::min;
 using std::max;
 
+
 /*
 		AABB collision & others collision mechanics inspired from
 			 Game Programming in C++: Creating 3D Games
@@ -791,11 +792,33 @@ int main()
 	glfwTerminate();
 	return 0;
 }
-
+// RAY CASTING
+// SCREEN SPACE: mouse_x and mouse_y are screen space
+glm::vec3 viewToWorldCoordTransform(int mouse_x, int mouse_y) {
+	// NORMALISED DEVICE SPACE
+	double x = 2.0 * mouse_x / SCR_WIDTH - 1;
+	double y = 2.0 * mouse_y / SCR_HEIGHT - 1;
+	// HOMOGENEOUS SPACE
+	glm::vec4 screenPos = glm::vec4(x, -y, -1.0f, 1.0f);
+	// Projection/Eye Space
+	glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
+	glm::mat4 ProjectView = projection * camera.GetViewMatrix();
+	glm::mat4 viewProjectionInverse = inverse(ProjectView);
+	glm::vec4 worldPos = viewProjectionInverse * screenPos;
+	return glm::vec3(worldPos);
+}
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow* window)
 {
+	if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) {
+
+		double x, y;
+		glfwGetCursorPos(window, &x, &y);
+		glm::vec3 posC = viewToWorldCoordTransform(x, y);
+		std::cout << "screen " << x << " " << y << " " << std::endl;
+		std::cout << "world " << posC.x << " " << posC.y << " " << std::endl;
+	}
 	// if X is pressed move 5x faster
 	double speed = 1.0;
 	if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
