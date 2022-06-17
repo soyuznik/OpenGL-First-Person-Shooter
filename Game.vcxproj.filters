@@ -1,0 +1,198 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{12a47348-9a6e-404a-8d7e-2ffa91eb59f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base">
+      <UniqueIdentifier>{480af6f1-9b9e-48e5-9dbf-783605323a6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Source">
+      <UniqueIdentifier>{7b767036-5c86-4143-bd37-98a6678f2473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base\Headers">
+      <UniqueIdentifier>{85e1dad5-bc77-49f2-98e4-a42ff8566ec1}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\Sprite.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Sprite.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\BasicMesh.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\BasicMesh.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Phong.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\Phong.vert">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="base\headers\Actor.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\AudioComponent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\AudioSystem.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\BallActor.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\BallMove.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\BoxComponent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\CameraComponent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Collision.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Component.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\FPSActor.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\FPSCamera.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Game.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\GameMath.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Mesh.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\MeshComponent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\MoveComponent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\PhysWorld.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\PlaneActor.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Renderer.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Shader.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\SoundEvent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\SpriteComponent.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\TargetActor.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Texture.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\VertexArray.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="base\headers\Effects.h">
+      <Filter>Base\Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="base\src\Actor.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\AudioComponent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\AudioSystem.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\BallActor.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\BallMove.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\BoxComponent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\CameraComponent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Collision.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Component.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\FPSActor.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\FPSCamera.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Game.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\GameMath.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Mesh.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\MeshComponent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\MoveComponent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\PhysWorld.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\PlaneActor.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Renderer.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Shader.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\SoundEvent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\SpriteComponent.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\TargetActor.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\Texture.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="base\src\VertexArray.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="base\src\Effects.cpp">
+      <Filter>Base\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
