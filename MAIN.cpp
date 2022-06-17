@@ -371,6 +371,7 @@ int main()
 
 	// AABB collision
 	std::vector<vec3> ppoints;
+	std::vector<float> floatppoints;
 	for (unsigned int a = 0; a < sizeof(planeVertices) / sizeof(planeVertices[0]); a = a + 5) {
 		ppoints.push_back(vec3(planeVertices[a], planeVertices[a + 1], planeVertices[a + 2]));
 	}
@@ -384,9 +385,28 @@ int main()
 				glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f * i, -0.51f, 11.0f * j));
 				glm::vec4 point = (model * glm::vec4(ppoints[i].x, ppoints[i].y, ppoints[i].z, 1.0f));
 				plane.UpdateMinMax(glm::vec3(point.x, point.y, point.z));
+				floatppoints.push_back(point.x);
+				floatppoints.push_back(point.y);
+				floatppoints.push_back(point.z);
 			}
 		}
 	}
+	//create wireframer
+	unsigned int _VBO1, _planeVAO;
+	glGenVertexArrays(1, &_planeVAO);
+	glGenBuffers(1, &_VBO1);
+	glBindVertexArray(_planeVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, _VBO1);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * floatppoints.size(), floatppoints.data(), GL_STATIC_DRAW);
+	// position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// texture coord attribute
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+
+
+
 
 	//create box
 	unsigned int VBO1, planeVAO;
@@ -434,6 +454,8 @@ int main()
 
 	//load gun texture
 	unsigned int texture1 = loadTextureX("resources/gray.png");
+	//load red texture
+	unsigned int _texture1 = loadTextureX("resources/red.png");
 	//load box texture
 	unsigned int texture2 = loadTextureX("resources/textures/container.jpg");
 	//load plane texture
@@ -512,6 +534,7 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		// per-frame time logic
 		// --------------------
 		float currentFrame = static_cast<float>(glfwGetTime());
@@ -645,6 +668,7 @@ int main()
 				glBindTexture(GL_TEXTURE_2D, texture3);
 				glBindVertexArray(planeVAO);
 				glDrawArrays(GL_TRIANGLES, 0, 36);
+				
 			}
 		}
 
