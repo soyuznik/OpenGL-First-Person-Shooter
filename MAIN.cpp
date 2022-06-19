@@ -22,7 +22,7 @@
 #include <random>
 // std::thread for sound playing , we need it async
 #include <thread>
-
+#include "src/NewMath.h"
 #include "utility.h"
 
 
@@ -117,6 +117,18 @@ bool Intersect(Sphere& s, AABB& box)
 {
 	float distSq = box.MinDistSq(s.mCenter);
 	return distSq <= (s.mRadius * s.mRadius);
+}
+
+bool Intersect(const AABB& a, const AABB& b)
+{
+	bool no = a.mMax.x < b.mMin.x ||
+		a.mMax.y < b.mMin.y ||
+		a.mMax.z < b.mMin.z ||
+		b.mMax.x < a.mMin.x ||
+		b.mMax.y < a.mMin.y ||
+		b.mMax.z < a.mMin.z;
+	// If none of these are true, they must intersect
+	return !no;
 }
 
 ////////////////////////////// Utility ///////////////////////////////////////
@@ -275,6 +287,55 @@ int main()
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+	float cube_vertices[] = {
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,///
+		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,/// oppsite of  face you see on spawn
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,///
+
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,//
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,//
+		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,///
+
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,//-
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,//  face you see on spawn
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,//--
+										///
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,//--
+		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,//
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,//-
+
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,///
+		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,//
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,//
+										// left face of spawn
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,//
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,//
+		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,//
+
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,//
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,//
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,//
+									   //// right face of spawn
+		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,//
+		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,//
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,//
+
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,//
+		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,//
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,// under face of spawn
+									 //////
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,//
+		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,//
+		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,//
+
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,//
+		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,//
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,//
+									   //// upper face of spawn
+		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,//
+		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,//
+		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f///
+	};
 	// AABB collision
 	std::vector<vec3> points;
 	for (unsigned int a = 0; a < sizeof(vertices) / sizeof(vertices[0]); a = a + 5) {
@@ -284,6 +345,15 @@ int main()
 	for (size_t i = 1; i < points.size(); i++)
 	{
 		box.UpdateMinMax(points[i]);
+	}
+	std::vector<vec3> Player_points;
+	for (unsigned int a = 0; a < sizeof(cube_vertices) / sizeof(cube_vertices[0]); a = a + 5) {
+		Player_points.push_back(vec3(cube_vertices[a], cube_vertices[a + 1], cube_vertices[a + 2]));
+	}
+	AABB playerbox(Player_points[0], Player_points[0]);
+	for (size_t i = 1; i < Player_points.size(); i++)
+	{
+		box.UpdateMinMax(Player_points[i]);
 	}
 	//create box
 	unsigned int VBO, boxVAO;
@@ -371,7 +441,7 @@ int main()
 
 	// AABB collision
 	std::vector<vec3> ppoints;
-	std::vector<float> floatppoints;
+	
 	for (unsigned int a = 0; a < sizeof(planeVertices) / sizeof(planeVertices[0]); a = a + 5) {
 		ppoints.push_back(vec3(planeVertices[a], planeVertices[a + 1], planeVertices[a + 2]));
 	}
@@ -385,25 +455,9 @@ int main()
 				glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(11.0f * i, -0.51f, 11.0f * j));
 				glm::vec4 point = (model * glm::vec4(ppoints[i].x, ppoints[i].y, ppoints[i].z, 1.0f));
 				plane.UpdateMinMax(glm::vec3(point.x, point.y, point.z));
-				floatppoints.push_back(point.x);
-				floatppoints.push_back(point.y);
-				floatppoints.push_back(point.z);
 			}
 		}
 	}
-	//create wireframer
-	unsigned int _VBO1, _planeVAO;
-	glGenVertexArrays(1, &_planeVAO);
-	glGenBuffers(1, &_VBO1);
-	glBindVertexArray(_planeVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, _VBO1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * floatppoints.size(), floatppoints.data(), GL_STATIC_DRAW);
-	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture coord attribute
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
 
 
 
@@ -534,6 +588,9 @@ int main()
 	while (!glfwWindowShouldClose(window))
 	{
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		// translate camera box
+		playerbox.mMin =+camera.Position;
+		playerbox.mMax = +camera.Position;
 
 		// per-frame time logic
 		// --------------------
@@ -551,18 +608,53 @@ int main()
 			jump_cooldown += deltaTime;
 		}
 
-		// Create a sphere as the camera , because if it would be a point it would get a little bit inside objects
-		Sphere cameraSphere(camera.Position, 0.2f);
-		if (should_fall) { // gravity
-			camera.Position = glm::vec3(camera.Position.x, camera.Position.y - 0.002f, camera.Position.z);
+		
+		camera.Position.y -= 0.01f;
+		// Do we collide with this PlaneActor?
+		const AABB& planeBox = plane;
+		if (Intersect(playerbox, planeBox))
+		{
+			vec3 pos = camera.Position;
+			// Calculate all our differences
+			float dx1 = planeBox.mMax.x - playerbox.mMin.x;
+			float dx2 = planeBox.mMin.x - playerbox.mMax.x;
+			float dy1 = planeBox.mMax.y - playerbox.mMin.y;
+			float dy2 = planeBox.mMin.y - playerbox.mMax.y;
+			float dz1 = planeBox.mMax.z - playerbox.mMin.z;
+			float dz2 = planeBox.mMin.z - playerbox.mMax.z;
+
+			// Set dx to whichever of dx1/dx2 have a lower abs
+			float dx = Math::Abs(dx1) < Math::Abs(dx2) ?
+				dx1 : dx2;
+			// Ditto for dy
+			float dy = Math::Abs(dy1) < Math::Abs(dy2) ?
+				dy1 : dy2;
+			// Ditto for dz
+			float dz = Math::Abs(dz1) < Math::Abs(dz2) ?
+				dz1 : dz2;
+
+			// Whichever is closest, adjust x/y position
+			if (Math::Abs(dx) <= Math::Abs(dy) && Math::Abs(dx) <= Math::Abs(dz))
+			{
+				pos.x += dx;
+			}
+			else if (Math::Abs(dy) <= Math::Abs(dx) && Math::Abs(dy) <= Math::Abs(dz))
+			{
+				pos.y += dy;
+			}
+			else
+			{
+				pos.z += dz;
+			}
+
+			// Need to set position and update box component
+			camera.Position = pos;
+			
+		
+		
+	
+			
 		}
-		if (Intersect(cameraSphere, box)) { // check intersection with boxes
-			camera.Position = saveLastPostion;
-		}
-		else if (Intersect(cameraSphere, plane)) { // check intersection with the plane
-			camera.Position = saveLastPostion;
-		}
-		else saveLastPostion = camera.Position;  // if not colliding save possition when its safe
 
 		// input
 		// -----

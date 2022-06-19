@@ -154,8 +154,10 @@
     <ClCompile Include="includes\glad.c" />
     <ClCompile Include="includes\stb_image.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\NewMath.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\NewMath.h" />
     <ClInclude Include="utility.h" />
     <ClInclude Include="includes\learnopengl\model.h" />
   </ItemGroup>

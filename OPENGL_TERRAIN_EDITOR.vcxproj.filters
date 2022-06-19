@@ -25,12 +25,18 @@
     <ClCompile Include="includes\stb_image.cpp">
       <Filter>Implementations</Filter>
     </ClCompile>
+    <ClCompile Include="src\NewMath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="includes\learnopengl\model.h">
       <Filter>Base</Filter>
     </ClInclude>
     <ClInclude Include="utility.h" />
+    <ClInclude Include="src\NewMath.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="resources\shaders\7.4.camera_frag.glsl">
