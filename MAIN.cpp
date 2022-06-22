@@ -734,6 +734,9 @@ int main()
 	bool should_fall = true;
 	// jump_cooldown so you cant fly;;;;
 	float jump_cooldown = 0.0f;
+
+	//--------------------------
+    double _ShootingDelay = 0;
 	// render loop
 	// -----------
 
@@ -900,13 +903,20 @@ int main()
 		ourShader.setMat4("view", view);
 		
 		// Construct segment in direction of travel
-		
-		if (Shooting) {
+
+		_ShootingDelay += deltaTime;
+		if ((Shooting) && (_ShootingDelay > 0.1f) && (display_gun)) {
 			// Create line segment
 			bulletPositions.push_back(camera.Position);	
+			_ShootingDelay = 0;
+		}
+		if ((Shooting) && (_ShootingDelay > 0.2f) && (display_deagle)) {
+			// Create line segment
+			bulletPositions.push_back(camera.Position);
+				_ShootingDelay = 0;
 		}
 		for (int i = 0; i < bulletPositions.size(); i++) {
-			bulletPositions[i] += camera.Front * vec3(2.0f);
+			bulletPositions[i] += camera.Front;// *vec3(2.0f);
 			model = glm::translate(glm::mat4(1.0f), bulletPositions[i]);
 			model = glm::scale(model, vec3(0.01f, 0.01f, 0.01f));
 			ourShader.setMat4("model", model);
