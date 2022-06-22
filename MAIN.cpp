@@ -36,12 +36,202 @@ using std::min;
 using std::max;
 
 
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+//------------------------------------------------------------------------
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow* window);
+
+// settings
+const unsigned int SCR_WIDTH = 1920;
+const unsigned int SCR_HEIGHT = 1080;
+
+// camera
+Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
+float lastX = SCR_WIDTH / 2.0f;
+float lastY = SCR_HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
+
+// Booleans , mostly for gun management & others
+bool shoot_cooldown = true;
+bool Shooting = false;
+bool ADS = false;
+bool should_jump = false;
+bool display_gun = true;
+bool display_deagle = false;
+
+
+
+
+
+
+
+
 /*
 		AABB collision & others collision mechanics inspired from
 			 Game Programming in C++: Creating 3D Games
 					  Book by Sanjay Madhav
 
 */
+// This will transform the vector and renormalize the w component
+vec3 TransformWithPerspDiv(const vec3& vec, const glm::mat4& matrix, float w = 1.0f) // is depth
+{
+	vec3 retVal;
+	retVal.x = vec.x * matrix[0][0] + vec.y * matrix[1][0] +
+		vec.z * matrix[2][0] + w * matrix[3][0];
+	retVal.y = vec.x * matrix[0][1] + vec.y * matrix[1][1] +
+		vec.z * matrix[2][1] + w * matrix[3][1];
+	retVal.z = vec.x * matrix[0][2] + vec.y * matrix[1][2] +
+		vec.z * matrix[2][2] + w * matrix[3][2];
+	float transformedW = vec.x * matrix[0][3] + vec.y * matrix[1][3] +
+		vec.z * matrix[2][3] + w * matrix[3][3];
+	if (!Math::NearZero(Math::Abs(transformedW)))
+	{
+		transformedW = 1.0f / transformedW;
+		retVal *= transformedW;
+	}
+	return retVal;
+}
+vec3 Unproject(const vec3& screenPoint , glm::mat4 mView , glm::mat4 mProjection) 
+{
+	// Convert screenPoint to device coordinates (between -1 and +1)
+	vec3 deviceCoord = screenPoint;
+	deviceCoord.x /= (SCR_WIDTH) * 0.5f;
+	deviceCoord.y /= (SCR_HEIGHT) * 0.5f;
+
+	// Transform vector by unprojection matrix
+	glm::mat4 unprojection = glm::inverse(mView * mProjection);
+	
+	return TransformWithPerspDiv(deviceCoord, unprojection);
+}
+struct LineSegment
+{
+	LineSegment(const vec3& start, const vec3& end);
+	// Get point along segment where 0 <= t <= 1
+	vec3 PointOnSegment(float t) const;
+	// Get minimum distance squared between point and line segment
+	float MinDistSq(const vec3& point) const;
+	// Get MinDistSq between two line segments
+	static float MinDistSq(const LineSegment& s1, const LineSegment& s2);
+
+	vec3 mStart;
+	vec3 mEnd;
+};
+LineSegment::LineSegment(const vec3& start, const vec3& end)
+	:mStart(start)
+	, mEnd(end)
+{
+}
+
+vec3 LineSegment::PointOnSegment(float t) const
+{
+	return mStart + (mEnd - mStart) * t;
+}
+
+float LineSegment::MinDistSq(const vec3& point) const
+{
+	// Construct vectors
+	vec3 ab = mEnd - mStart;
+	vec3 ba = -1.0f * ab;
+	vec3 ac = point - mStart;
+	vec3 bc = point - mEnd;
+
+	// Case 1: C projects prior to A
+	if (glm::dot(ab, ac) < 0.0f)
+	{
+		return glm::dot(ac , ac);
+	}
+	// Case 2: C projects after B
+	else if (glm::dot(ba, bc) < 0.0f)
+	{
+		return glm::dot(bc , bc);
+	}
+	// Case 3: C projects onto line
+	else
+	{
+		// Compute p
+		float scalar = glm::dot(ac, ab)
+			/ glm::dot(ab, ab);
+		vec3 p = scalar * ab;
+		// Compute length squared of ac - p
+		return glm::dot(ac - p , ac - p);
+	}
+}
+
+float LineSegment::MinDistSq(const LineSegment& s1, const LineSegment& s2)
+{
+	vec3   u = s1.mEnd - s1.mStart;
+	vec3   v = s2.mEnd - s2.mStart;
+	vec3   w = s1.mStart - s2.mStart;
+	float    a = glm::dot(u, u);         // always >= 0
+	float    b = glm::dot(u, v);
+	float    c = glm::dot(v, v);         // always >= 0
+	float    d = glm::dot(u, w);
+	float    e = glm::dot(v, w);
+	float    D = a * c - b * b;        // always >= 0
+	float    sc, sN, sD = D;       // sc = sN / sD, default sD = D >= 0
+	float    tc, tN, tD = D;       // tc = tN / tD, default tD = D >= 0
+
+								   // compute the line parameters of the two closest points
+	if (Math::NearZero(D)) { // the lines are almost parallel
+		sN = 0.0;         // force using point P0 on segment S1
+		sD = 1.0;         // to prevent possible division by 0.0 later
+		tN = e;
+		tD = c;
+	}
+	else {                 // get the closest points on the infinite lines
+		sN = (b * e - c * d);
+		tN = (a * e - b * d);
+		if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
+			sN = 0.0;
+			tN = e;
+			tD = c;
+		}
+		else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+			sN = sD;
+			tN = e + b;
+			tD = c;
+		}
+	}
+
+	if (tN < 0.0) {            // tc < 0 => the t=0 edge is visible
+		tN = 0.0;
+		// recompute sc for this edge
+		if (-d < 0.0)
+			sN = 0.0;
+		else if (-d > a)
+			sN = sD;
+		else {
+			sN = -d;
+			sD = a;
+		}
+	}
+	else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+		tN = tD;
+		// recompute sc for this edge
+		if ((-d + b) < 0.0)
+			sN = 0;
+		else if ((-d + b) > a)
+			sN = sD;
+		else {
+			sN = (-d + b);
+			sD = a;
+		}
+	}
+	// finally do the division to get sc and tc
+	sc = (Math::NearZero(sN) ? 0.0f : sN / sD);
+	tc = (Math::NearZero(tN) ? 0.0f : tN / tD);
+
+	// get the difference of the two closest points
+	vec3   dP = w + (sc * u) - (tc * v);  // =  S1(sc) - S2(tc)
+
+	return glm::dot(dP , dP);   // return the closest distance squared
+}
+
 //////////////////////////////// Square Collision ////////////////////////////////////////////
 class AABB {
 public:
@@ -118,7 +308,6 @@ bool Intersect(Sphere& s, AABB& box)
 	float distSq = box.MinDistSq(s.mCenter);
 	return distSq <= (s.mRadius * s.mRadius);
 }
-
 bool Intersect(const AABB& a, const AABB& b)
 {
 	bool no = a.mMax.x < b.mMin.x ||
@@ -141,54 +330,16 @@ float s_rand(float _min, float _max)
 }
 
 ///////////////////////////// Sound /////////////////////////////////////////
-
+unsigned int bullets_shot = 0;
 bool ShootingFinished = true;
-/// <summary>
-///  Play sound
-/// </summary>
-/// <param name="channelGroup"> just the channel group</param>
-/// <param name="sound"> the FMOD::Sound u want to play</param>
-/// <param name="system"> the FMOD::System</param>
 void playShooting(FMOD::ChannelGroup* channelGroup, FMOD::Sound* sound, FMOD::System* system) {
 	FMOD::Channel* channel;
 	system->playSound(sound, channelGroup, false, &channel);
+	bullets_shot++;
 	Sleep(110);
 	ShootingFinished = true;
 }
 
-/// <summary>
-/// function to update the ViewPort based on the Window size
-/// </summary>
-/// <param name="window"></param>
-/// <param name="width"></param>
-/// <param name="height"></param>
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-//------------------------------------------------------------------------
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-void processInput(GLFWwindow* window);
-
-// settings
-const unsigned int SCR_WIDTH = 1920;
-const unsigned int SCR_HEIGHT = 1080;
-
-// camera
-Camera camera(glm::vec3(0.0f, 1.0f, 3.0f));
-float lastX = SCR_WIDTH / 2.0f;
-float lastY = SCR_HEIGHT / 2.0f;
-bool firstMouse = true;
-
-// timing
-float deltaTime = 0.0f;	// time between current frame and last frame
-float lastFrame = 0.0f;
-
-// Booleans , mostly for gun management & others
-bool shoot_cooldown = true;
-bool Shooting = false;
-bool ADS = false;
-bool should_jump = false;
-bool display_gun = true;
-bool display_deagle = false;
 
 int main()
 {
@@ -375,7 +526,7 @@ int main()
 	//create gun
 	Model gun("resources/m4a1.obj" , "resources/gray.png");
 	Model deagle("resources/deagle.obj" , "resources/gray.png");
-
+	Model bullet("resources/45.obj", "resources/yellow.png");
 
 	//create building
 	Model cottage("resources/models/cottage.obj" , "resources/models/cottage.png");
@@ -508,8 +659,6 @@ int main()
 
 	//load gun texture
 	unsigned int texture1 = loadTextureX("resources/gray.png");
-	//load red texture
-	unsigned int _texture1 = loadTextureX("resources/red.png");
 	//load box texture
 	unsigned int texture2 = loadTextureX("resources/textures/container.jpg");
 	//load plane texture
@@ -576,7 +725,8 @@ int main()
 
 	// save Last Position where the camera didint collide anything
 	vec3 saveLastPostion = camera.Position;
-
+	vec3 bulletDir = camera.Front;
+	vec3 bulletPos = saveLastPostion;
 	// Automatic gun boolean , means if the gun should move Back or Forth>..XD
 	bool should_move = true;
 	// if gravity is enabled
@@ -585,11 +735,12 @@ int main()
 	float jump_cooldown = 0.0f;
 	// render loop
 	// -----------
+
 	while (!glfwWindowShouldClose(window))
 	{
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// translate camera box
-		playerbox.mMin =+camera.Position;
+		playerbox.mMin = +camera.Position;
 		playerbox.mMax = +camera.Position;
 
 		// per-frame time logic
@@ -608,7 +759,7 @@ int main()
 			jump_cooldown += deltaTime;
 		}
 
-		
+
 		camera.Position.y -= 0.01f;
 		// Do we collide with this PlaneActor?
 		const AABB& planeBox = plane;
@@ -649,11 +800,11 @@ int main()
 
 			// Need to set position and update box component
 			camera.Position = pos;
-			
-		
-		
-	
-			
+
+
+
+
+
 		}
 
 		// input
@@ -668,8 +819,8 @@ int main()
 
 		// activate shader
 		ourShader.use();
-		
-		
+
+
 		//draw crosshair
 		glm::mat4 projection = glm::mat4(1.0f);
 		ourShader.setMat4("projection", projection);
@@ -697,7 +848,7 @@ int main()
 		*/
 
 		modelShader.use();
-		
+
 		// pass projection matrix to shader (note that in this case it could change every frame)
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 		modelShader.setMat4("projection", projection);
@@ -725,12 +876,12 @@ int main()
 
 
 
-		
+
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(50.0f, 6.5f, 20.0f));
-		model = glm::rotate(model, glm::radians(10.0f) , glm::vec3(0.0f, 1.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(10.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 		model = glm::scale(model, glm::vec3(0.8f, 0.8f, 0.8f));
 		//rot = glm::rotate(rot, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-		
+
 		modelShader.setMat4("model", model);
 
 		church.Draw(modelShader);
@@ -746,11 +897,29 @@ int main()
 		// camera/view transformation
 		view = camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
+		if (Shooting) {
+			// Construct segment in direction of travel
+			
+			vec3 dir = camera.Front;
 
+
+			// Create line segment
+			bulletPos += dir;
+			model = glm::translate(glm::mat4(1.0f), bulletPos);
+			model = glm::scale(model, vec3(0.5f, 0.5f, 0.5f));
+			model = glm::rotate(model, glm::radians(90.0f), camera.Up);
+
+			ourShader.setMat4("model", model);	
+		}
+		if (!Shooting) {
+			bulletPos = camera.Position;
+		}
+		bullet.Draw(ourShader);
+		
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.0f, 20.0f));
 		model = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
 		ourShader.setMat4("model", model);
-
+		
 		//draw plane 36 x 36 small planes
 		for (int i = 1; i < 36; i++) {
 			for (int j = 1; j < 36; j++) {
@@ -787,7 +956,7 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, texture4);
 			glBindVertexArray(sqVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
-			glDisable(GL_BLEND);
+			glDisable(GL_BLEND); 
 		}
 		if (Shooting && !ADS && display_deagle) {
 			glEnable(GL_BLEND);
