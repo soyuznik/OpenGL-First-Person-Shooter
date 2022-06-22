@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Implementations">
+      <UniqueIdentifier>{646751b1-37d2-4697-9310-cf7c9651b98c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Base">
+      <UniqueIdentifier>{7555abfe-bba2-4771-837e-ec1e09fd31a2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{c8b2f75d-3747-4939-bac2-f114aeeedf90}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\glad.c">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="includes\stb_image.cpp">
+      <Filter>Implementations</Filter>
+    </ClCompile>
+    <ClCompile Include="src\NewMath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="includes\learnopengl\model.h">
+      <Filter>Base</Filter>
+    </ClInclude>
+    <ClInclude Include="utility.h" />
+    <ClInclude Include="src\NewMath.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="resources\shaders\7.4.camera_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\7.4.camera_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\1.model_frag.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="resources\shaders\1.model_vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
