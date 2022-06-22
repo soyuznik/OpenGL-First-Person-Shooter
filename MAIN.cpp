@@ -526,7 +526,7 @@ int main()
 	//create gun
 	Model gun("resources/m4a1.obj" , "resources/gray.png");
 	Model deagle("resources/deagle.obj" , "resources/gray.png");
-	Model bullet("resources/45.obj", "resources/yellow.png");
+	Model bullet("resources/sphere.obj", "resources/cooper.jpg");
 
 	//create building
 	Model cottage("resources/models/cottage.obj" , "resources/models/cottage.png");
@@ -727,6 +727,7 @@ int main()
 	vec3 saveLastPostion = camera.Position;
 	vec3 bulletDir = camera.Front;
 	vec3 bulletPos = saveLastPostion;
+	std::vector<vec3> bulletPositions;
 	// Automatic gun boolean , means if the gun should move Back or Forth>..XD
 	bool should_move = true;
 	// if gravity is enabled
@@ -897,24 +898,25 @@ int main()
 		// camera/view transformation
 		view = camera.GetViewMatrix();
 		ourShader.setMat4("view", view);
+		
+		// Construct segment in direction of travel
+		
 		if (Shooting) {
-			// Construct segment in direction of travel
-			
-			vec3 dir = camera.Front;
-
-
 			// Create line segment
-			bulletPos += dir;
-			model = glm::translate(glm::mat4(1.0f), bulletPos);
-			model = glm::scale(model, vec3(0.5f, 0.5f, 0.5f));
-			model = glm::rotate(model, glm::radians(90.0f), camera.Up);
-
-			ourShader.setMat4("model", model);	
+			bulletPositions.push_back(camera.Position);	
+		}
+		for (int i = 0; i < bulletPositions.size(); i++) {
+			bulletPositions[i] += camera.Front * vec3(2.0f);
+			model = glm::translate(glm::mat4(1.0f), bulletPositions[i]);
+			model = glm::scale(model, vec3(0.01f, 0.01f, 0.01f));
+			ourShader.setMat4("model", model);
+			bullet.Draw(ourShader);
 		}
 		if (!Shooting) {
-			bulletPos = camera.Position;
+			if (!bulletPositions.empty()) {
+				bulletPositions.pop_back();
+			}
 		}
-		bullet.Draw(ourShader);
 		
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.0f, 20.0f));
 		model = glm::scale(glm::mat4(1.0f), glm::vec3(0.2f, 0.2f, 0.2f));
