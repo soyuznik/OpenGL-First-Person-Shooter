@@ -1087,7 +1087,7 @@ int main()
 				model = glm::rotate(model, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 				model = glm::translate(model, glm::vec3(1.0f, 5.5f, 0.0f));
 			}
-			if (Shooting) { // if shooting move gun up ...
+			if (Shooting && _AnimationIndex < 8) { // if shooting move gun up ...
 				model = glm::rotate(model, glm::radians(-15.0f), glm::vec3(1.0f, 0.1f, 0.0f));
 				should_move = false;
 			}
