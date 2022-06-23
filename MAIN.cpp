@@ -1000,7 +1000,7 @@ int main()
 			glBindTexture(GL_TEXTURE_2D, texture4anim[_AnimationIndex]);
 			static double time_passed = 0;
 			time_passed += deltaTime;
-			if (time_passed > 0.02f) {
+			if (time_passed > 0.03f) {
 				_AnimationIndex++;
 				time_passed = 0;
 			}
