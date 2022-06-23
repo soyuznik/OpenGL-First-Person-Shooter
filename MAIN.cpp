@@ -663,8 +663,12 @@ int main()
 	unsigned int texture2 = loadTextureX("resources/textures/container.jpg");
 	//load plane texture
 	unsigned int texture3 = loadTextureX("resources/textures/brickwall.jpg");
-	//load explosion texture
-	unsigned int texture4 = loadTextureY("resources/shoot_eff_.png");
+	//load explosion animation
+	std::vector<unsigned int> texture4anim;
+	for (int i = 0; i < 8; i++) {
+		std::string path = std::string("resources/MUZZLE/muzzle") + std::to_string(i) + std::string(".png");
+		texture4anim.push_back(loadTextureY(path));
+	}
 	//load crosshair texture
 	unsigned int texture5 = loadTextureY("resources/crosshair.png");
 
@@ -737,6 +741,7 @@ int main()
 
 	//--------------------------
     double _ShootingDelay = 0;
+	int _AnimationIndex = 0;
 	// render loop
 	// -----------
 
@@ -965,7 +970,9 @@ int main()
 			ourShader.setMat4("model", model);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture4);
+			glBindTexture(GL_TEXTURE_2D, texture4anim[_AnimationIndex]);
+			_AnimationIndex++;
+			if (_AnimationIndex == 8) { _AnimationIndex = 0; }
 			glBindVertexArray(sqVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glDisable(GL_BLEND); 
@@ -984,7 +991,7 @@ int main()
 			ourShader.setMat4("model", model);
 
 			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture4);
+			glBindTexture(GL_TEXTURE_2D, texture4anim[0]);
 			glBindVertexArray(sqVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glDisable(GL_BLEND);
