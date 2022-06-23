@@ -915,10 +915,12 @@ int main()
 			bulletPositions.push_back(camera.Position);	
 			_ShootingDelay = 0;
 		}
-		if ((Shooting) && (_ShootingDelay > 0.2f) && (display_deagle)) {
+		static bool should_deagle_shoot = true;
+		if ((Shooting) && (display_deagle) && should_deagle_shoot) {
 			// Create line segment
 			bulletPositions.push_back(camera.Position);
-				_ShootingDelay = 0;
+			_ShootingDelay = 0;
+			should_deagle_shoot = false;
 		}
 		for (int i = 0; i < bulletPositions.size(); i++) {
 			bulletPositions[i] += camera.Front;// *vec3(2.0f);
@@ -931,6 +933,7 @@ int main()
 			if (!bulletPositions.empty()) {
 				bulletPositions.pop_back();
 			}
+			should_deagle_shoot = true;
 		}
 		
 		model = glm::translate(glm::mat4(1.0f), glm::vec3(20.0f, -0.0f, 20.0f));
@@ -956,7 +959,7 @@ int main()
 		//check if should apply effect.
 		glClear(GL_DEPTH_BUFFER_BIT);
 		
-		if (Shooting && ADS && display_deagle) {
+		if (Shooting && ADS && display_deagle && _AnimationIndex < 8) {
 			glEnable(GL_BLEND);
 			//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			// pass projection matrix to shader 
@@ -971,13 +974,17 @@ int main()
 
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, texture4anim[_AnimationIndex]);
-			_AnimationIndex++;
-			if (_AnimationIndex == 8) { _AnimationIndex = 0; }
+			static double time_passed = 0;
+			time_passed += deltaTime;
+			if (time_passed > 0.02f) {
+				_AnimationIndex++;
+				time_passed = 0;
+			}
 			glBindVertexArray(sqVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glDisable(GL_BLEND); 
 		}
-		if (Shooting && !ADS && display_deagle) {
+		if (Shooting && !ADS && display_deagle && _AnimationIndex < 8) {
 			glEnable(GL_BLEND);
 			//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			// pass projection matrix to shader 
@@ -990,11 +997,20 @@ int main()
 			glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.241f, 0.3f, 0.4f));
 			ourShader.setMat4("model", model);
 
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture4anim[0]);
+			glBindTexture(GL_TEXTURE_2D, texture4anim[_AnimationIndex]);
+			static double time_passed = 0;
+			time_passed += deltaTime;
+			if (time_passed > 0.02f) {
+				_AnimationIndex++;
+				time_passed = 0;
+			}
 			glBindVertexArray(sqVAO);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 			glDisable(GL_BLEND);
+		}
+		if (!Shooting) {
+			//reset animations
+			if (_AnimationIndex >= 8) { _AnimationIndex = 0; }
 		}
 
 
